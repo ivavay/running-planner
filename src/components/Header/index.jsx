@@ -3,7 +3,9 @@ import styled from "styled-components";
 export default function Header() {
   return (
     <Navbar>
-      <h3>Running Planner</h3>
+      <Link to="/">
+        <h3>Running Planner</h3>
+      </Link>
       <Navlinks>
         <NavItem>
           <Link to="/badges">Badges</Link>
