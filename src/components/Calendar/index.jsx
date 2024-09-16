@@ -1,8 +1,11 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const todayDate = new Date().toISOString().split("T")[0];
+  const todayDate = new Date().toISOString().split("T")[0].slice(-2);
+
+  console.log(todayDate);
   // Get number of days in each month
   function getDaysInMonth(month, year) {
     return new Date(year, month, 0).getDate();
@@ -44,16 +47,25 @@ export default function Calendar() {
     calendarDays.push(i);
   }
 
+  // Set today block's background to be different
+  //   useEffect(() => {
+  //     {
+  //       for (let i = 0; i < calendarDays.length; i++) {
+  //         if (calendarDays[i] === parseInt(todayDate)) {
+  //           setIsToday(true);
+  //           console.log("Today is " + todayDate, isToday);
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }, [calendarDays]);
+
   function handlePrevMonth() {
     setCurrentDate(new Date(year, month - 1));
   }
 
   function handleNextMonth() {
     setCurrentDate(new Date(year, month + 1));
-  }
-
-  if (todayDate) {
-    console.log(todayDate);
   }
 
   return (
@@ -70,7 +82,7 @@ export default function Calendar() {
       </DaysofWeek>
       <Dates>
         {calendarDays.map((day, index) => (
-          <Day key={index} className="date-cell">
+          <Day isToday={isToday} key={index} className="date-cell">
             {day}
           </Day>
         ))}
@@ -101,6 +113,7 @@ const Day = styled.div`
   width: 100%;
   height: 150px;
   border: 1px solid #ccc;
+  background-color: ${(props) => (props.isToday ? "lightblue" : "white")};
 `;
 const MonthNavigation = styled.div`
   display: flex;
