@@ -98,7 +98,26 @@ export default function Calendar({ eventModal, setEventModal }) {
           </Day>
         ))}
       </Dates>
-      <EventModalCard $eventModal={eventModal}>Create event</EventModalCard>
+      <EventModalCard $eventModal={eventModal}>
+        Create event
+        <EventTitle placeholder="Event title" />
+        <EventDistanceContainer>
+          <EventDistance placeholder="Distance goal: e.g. 5km" />
+          <KmSpan>Km</KmSpan>
+        </EventDistanceContainer>
+        <EventEffort>
+          <EventEffortOption>Conversational</EventEffortOption>
+          <EventEffortOption>Moderate</EventEffortOption>
+          <EventEffortOption>Hard</EventEffortOption>
+        </EventEffort>
+        <EventType>
+          <EventTypeOption>Easy</EventTypeOption>
+          <EventTypeOption>Intevals</EventTypeOption>
+          <EventTypeOption>Long</EventTypeOption>
+        </EventType>
+        <EventNotes placeholder="Workout details here or any other notes" />
+        <EventSaveButton>Save</EventSaveButton>
+      </EventModalCard>
     </CalendarView>
   );
 }
@@ -135,7 +154,7 @@ const MonthNavigation = styled.div`
 const MonthButton = styled.button``;
 
 const EventModalCard = styled.div`
-  ${(props) => (props.$eventModal ? "display: block" : "display: none")};
+  ${(props) => (props.$eventModal ? "display: flex" : "display: none")};
   background-color: aliceblue;
   border: 1px solid #ccc;
   width: 400px;
@@ -144,4 +163,44 @@ const EventModalCard = styled.div`
   top: 40%;
   left: 35%;
   padding: 8px;
+  flex-direction: column;
+  justify-content: center;
+`;
+const EventDistance = styled.input`
+  width: 150px;
+  margin: 4px 0;
+  padding: 4px;
+`;
+const EventEffort = styled.select`
+  margin: 4px 0;
+  padding: 4px;
+`;
+const EventEffortOption = styled.option``;
+const EventTitle = styled.input`
+  width: 200px;
+  margin: 4px 0;
+  padding: 4px;
+`;
+const EventNotes = styled.textarea`
+  width: 95%;
+  height: 100px;
+  margin: 4px 0;
+  padding: 4px;
+`;
+const EventType = styled.select`
+  margin: 4px 0;
+  padding: 4px;
+`;
+const EventTypeOption = styled.option``;
+const EventSaveButton = styled.button`
+  width: fit-content;
+  margin-top: 8px;
+`;
+const KmSpan = styled.span`
+  font-size: 12px;
+  margin-left: 4px;
+`;
+const EventDistanceContainer = styled.div`
+  display: flex;
+  align-items: center;
 `;
