@@ -7,6 +7,8 @@ export default function RaceForm({ programLength, setProgramLength }) {
   const [programEndDate, setProgramEndDate] = useState("");
   const [raceDate, setRaceDate] = useState("");
 
+  const today = new Date().toISOString().split("T")[0];
+
   function handleProgramStartChange(event) {
     setProgramStartDate(event.target.value);
     console.log("Start " + programStartDate);
@@ -20,8 +22,10 @@ export default function RaceForm({ programLength, setProgramLength }) {
   function calculateProgramWeeks() {
     const start_date = new Date(programStartDate);
     const end_date = new Date(programEndDate);
+
     console.log(start_date, end_date);
 
+    // Cannot pick start date before today and end date has to be after start date
     if (start_date > end_date) {
       alert("Start date must be before end date");
       return;
@@ -48,6 +52,7 @@ export default function RaceForm({ programLength, setProgramLength }) {
         <RaceTitle placeholder="e.g. Taiepi Half Marathon" />
         <RaceDate
           type="date"
+          min={today}
           value={raceDate}
           onChange={handleRaceDateChange}
         />

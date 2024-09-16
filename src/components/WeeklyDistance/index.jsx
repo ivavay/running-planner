@@ -12,6 +12,7 @@ export default function WeeklyDistance({ programLength }) {
   }
   // Convert programLength to an array of weeks
   let weeksTotal = Array.from({ length: programLength }, (_, i) => i + 1);
+
   useEffect(() => {
     console.log("Updated Weekly Distances:", weeklyDistances);
   }, [weeklyDistances]);
@@ -35,6 +36,13 @@ export default function WeeklyDistance({ programLength }) {
           Set
         </WeeklyDistanceButtoon>
       </WeeklyDistanceContainer>
+      <DistancesContainer>
+        {weeklyDistances.map((distance, index) => (
+          <Distance key={index}>
+            Week {index + 1} Goal: {distance} km
+          </Distance>
+        ))}
+      </DistancesContainer>
     </>
   );
 }
@@ -44,3 +52,5 @@ const WeeklyDropdown = styled.select``;
 const WeekOption = styled.option``;
 const WeeklyDistanceInput = styled.input``;
 const WeeklyDistanceButtoon = styled.button``;
+const DistancesContainer = styled.div``;
+const Distance = styled.div``;
