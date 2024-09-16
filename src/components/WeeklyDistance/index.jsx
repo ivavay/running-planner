@@ -1,9 +1,21 @@
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 
 export default function WeeklyDistance({ programLength }) {
-  console.log(programLength);
-  let weeksTotal = Array.from(String(programLength), Number);
-  console.log(weeksTotal);
+  const [weeklyDistances, setWeeklyDistances] = useState([]);
+  const [currentDistance, setCurrentDistance] = useState("");
+
+  function addWeeklyDistance() {
+    let distance = parseInt(currentDistance);
+    setWeeklyDistances([...weeklyDistances, distance]);
+    setCurrentDistance("");
+  }
+  // Convert programLength to an array of weeks
+  let weeksTotal = Array.from({ length: programLength }, (_, i) => i + 1);
+  useEffect(() => {
+    console.log("Updated Weekly Distances:", weeklyDistances);
+  }, [weeklyDistances]);
+
   return (
     <>
       <h2>Weekly Distance</h2>
@@ -15,8 +27,13 @@ export default function WeeklyDistance({ programLength }) {
             </WeekOption>
           ))}
         </WeeklyDropdown>
-        <WeeklyDistanceInput></WeeklyDistanceInput>
-        <WeeklyDistanceButtoon>Set</WeeklyDistanceButtoon>
+        <WeeklyDistanceInput
+          value={currentDistance}
+          onChange={(event) => setCurrentDistance(event.target.value)}
+        ></WeeklyDistanceInput>
+        <WeeklyDistanceButtoon onClick={addWeeklyDistance}>
+          Set
+        </WeeklyDistanceButtoon>
       </WeeklyDistanceContainer>
     </>
   );
