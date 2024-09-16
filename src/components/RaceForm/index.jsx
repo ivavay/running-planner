@@ -49,7 +49,7 @@ export default function RaceForm({ programLength, setProgramLength }) {
     <>
       <RaceInfo>
         <RaceLabel>Race </RaceLabel>
-        <RaceTitle placeholder="e.g. Taiepi Half Marathon" />
+        <RaceTitle placeholder="e.g. Tapei Half Marathon" />
         <RaceDate
           type="date"
           min={today}

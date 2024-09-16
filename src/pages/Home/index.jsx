@@ -1,3 +1,4 @@
+import Calendar from "../../components/Calendar";
 import RaceForm from "../../components/RaceForm";
 import WeeklyDistance from "../../components/WeeklyDistance";
 import { useState } from "react";
@@ -11,6 +12,7 @@ export default function Home() {
         setProgramLength={setProgramLength}
       />
       <WeeklyDistance programLength={programLength} />
+      <Calendar />
     </>
   );
 }
