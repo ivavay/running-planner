@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import { useState } from "react";
-export default function RaceForm() {
+
+// eslint-disable-next-line react/prop-types
+export default function RaceForm({ programLength, setProgramLength }) {
   const [programStartDate, setProgramStartDate] = useState("");
   const [programEndDate, setProgramEndDate] = useState("");
-  const [programLength, setProgramLength] = useState(0);
   const [raceDate, setRaceDate] = useState("");
 
   function handleProgramStartChange(event) {
