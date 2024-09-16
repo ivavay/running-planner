@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { useEffect, useState } from "react";
-
-export default function Calendar() {
+import { useState, useEffect } from "react";
+import Event from "../Event";
+export default function Calendar({ eventModal, setEventModal }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
 
@@ -68,6 +68,16 @@ export default function Calendar() {
     setCurrentDate(new Date(year, month + 1));
   }
 
+  // Click on a date cell to add an event (modal pops up)
+  // Double clicks don't work for some reason
+  function handleAddEvent() {
+    console.log("Clicked once");
+    setEventModal(!eventModal);
+  }
+  useEffect(() => {
+    console.log("Event modal is " + eventModal);
+  }, [eventModal]);
+
   return (
     <CalendarView>
       <MonthNavigation>
@@ -82,11 +92,13 @@ export default function Calendar() {
       </DaysofWeek>
       <Dates>
         {calendarDays.map((day, index) => (
-          <Day isToday={isToday} key={index} className="date-cell">
+          <Day key={index} className="date-cell" onClick={handleAddEvent}>
             {day}
+            <Event />
           </Day>
         ))}
       </Dates>
+      <EventModalCard $eventModal={eventModal}>Create event</EventModalCard>
     </CalendarView>
   );
 }
@@ -121,3 +133,15 @@ const MonthNavigation = styled.div`
   align-items: center;
 `;
 const MonthButton = styled.button``;
+
+const EventModalCard = styled.div`
+  ${(props) => (props.$eventModal ? "display: block" : "display: none")};
+  background-color: aliceblue;
+  border: 1px solid #ccc;
+  width: 400px;
+  height: 300px;
+  position: absolute;
+  top: 40%;
+  left: 35%;
+  padding: 8px;
+`;

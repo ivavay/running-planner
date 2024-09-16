@@ -4,6 +4,7 @@ import WeeklyDistance from "../../components/WeeklyDistance";
 import { useState } from "react";
 export default function Home() {
   const [programLength, setProgramLength] = useState(0);
+  const [eventModal, setEventModal] = useState(false);
   return (
     <>
       <h1>Home Page: Current program</h1>
@@ -12,7 +13,7 @@ export default function Home() {
         setProgramLength={setProgramLength}
       />
       <WeeklyDistance programLength={programLength} />
-      <Calendar />
+      <Calendar eventModal={eventModal} setEventModal={setEventModal} />
     </>
   );
 }
