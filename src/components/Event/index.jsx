@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
-export default function Event() {
+export default function Event({ title }) {
   return (
     <EventBlock>
-      <span>Event: A fun run!</span>
+      <span>{title}</span>
     </EventBlock>
   );
 }

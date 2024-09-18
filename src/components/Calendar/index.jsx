@@ -4,10 +4,16 @@ import Event from "../Event";
 export default function Calendar({ eventModal, setEventModal }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
-  const [eventCreated, setEventCreated] = useState(Array(31).fill(false)); // Assuming 31 days for simplicity
+  const [eventCreated, setEventCreated] = useState(Array(31).fill(false));
   const [selectedDay, setSelectedDay] = useState(null);
-
-  console.log(todayDate);
+  const [eventInputs, setEventInputs] = useState({
+    title: "",
+    date: "",
+    distance: "",
+    effort: "",
+    type: "",
+    notes: "",
+  });
   // Get number of days in each month
   function getDaysInMonth(month, year) {
     return new Date(year, month, 0).getDate();
@@ -71,23 +77,37 @@ export default function Calendar({ eventModal, setEventModal }) {
   }
 
   // Click on a date cell to add an event (modal pops up)
-  // Double clicks don't work for some reason
   function handleOpenEventModal(index) {
     console.log("Clicked once");
     setSelectedDay(index);
-    setEventModal(true);
+    setEventModal(!eventModal);
   }
   useEffect(() => {
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
-  function handleCreateEvent(index) {
+  function handleCreateEvent() {
     if (selectedDay !== null) {
       const newEventCreated = [...eventCreated];
-      newEventCreated[selectedDay] = true;
+      newEventCreated[selectedDay] = { title: eventInputs.title };
       setEventCreated(newEventCreated);
       setEventModal(false);
     }
+  }
+  function handleEventTitleChange(event) {
+    setEventInputs({ ...eventInputs, title: event.target.value });
+  }
+  function handleEventDistanceChange(event) {
+    setEventInputs({ ...eventInputs, distance: event.target.value });
+  }
+  function handleEventEffortChange(event) {
+    setEventInputs({ ...eventInputs, effort: event.target.value });
+  }
+  function handleEventTypeChange(event) {
+    setEventInputs({ ...eventInputs, type: event.target.value });
+  }
+  function handleEventNotesChange(event) {
+    setEventInputs({ ...eventInputs, notes: event.target.value });
   }
   return (
     <CalendarView>
@@ -109,29 +129,44 @@ export default function Calendar({ eventModal, setEventModal }) {
             onClick={() => handleOpenEventModal(index)}
           >
             {index + 1}
-            {eventCreated[index] ? <Event /> : null}
+            {eventCreated[index] ? (
+              <Event title={eventCreated[index].title} />
+            ) : null}
           </Day>
         ))}
       </Dates>
       <EventModalCard $eventModal={eventModal}>
         Create event
-        <EventTitle placeholder="Event title" />
+        <EventTitle
+          placeholder="Event title"
+          onChange={handleEventTitleChange}
+        />
         <EventDate>Date in standard format</EventDate>
         <EventDistanceContainer>
-          <EventDistance placeholder="Distance goal: e.g. 5km" />
+          <EventDistance
+            onChange={handleEventDistanceChange}
+            placeholder="Distance goal: e.g. 5km"
+          />
           <KmSpan>Km</KmSpan>
         </EventDistanceContainer>
-        <EventEffort>
-          <EventEffortOption>Conversational</EventEffortOption>
-          <EventEffortOption>Moderate</EventEffortOption>
-          <EventEffortOption>Hard</EventEffortOption>
+        <EventEffort onChange={handleEventEffortChange}>
+          <EventTypeOption value="">Select effort</EventTypeOption>
+          <EventEffortOption value="Conversational">
+            Conversational
+          </EventEffortOption>
+          <EventEffortOption value="Modereate">Moderate</EventEffortOption>
+          <EventEffortOption value="Hard">Hard</EventEffortOption>
         </EventEffort>
-        <EventType>
-          <EventTypeOption>Easy</EventTypeOption>
-          <EventTypeOption>Intevals</EventTypeOption>
-          <EventTypeOption>Long</EventTypeOption>
+        <EventType onChange={handleEventTypeChange}>
+          <EventTypeOption value="">Select type</EventTypeOption>
+          <EventTypeOption value="Easy">Easy</EventTypeOption>
+          <EventTypeOption value="Intervals">Intevals</EventTypeOption>
+          <EventTypeOption value="Long">Long</EventTypeOption>
         </EventType>
-        <EventNotes placeholder="Workout details here or any other notes" />
+        <EventNotes
+          onChange={handleEventNotesChange}
+          placeholder="Workout details here or any other notes"
+        />
         <EventSaveButton onClick={handleCreateEvent}>Save</EventSaveButton>
       </EventModalCard>
     </CalendarView>
