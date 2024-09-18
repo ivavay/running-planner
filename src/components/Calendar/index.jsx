@@ -4,6 +4,8 @@ import Event from "../Event";
 export default function Calendar({ eventModal, setEventModal }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
+  const [eventCreated, setEventCreated] = useState(Array(31).fill(false)); // Assuming 31 days for simplicity
+  const [selectedDay, setSelectedDay] = useState(null);
 
   console.log(todayDate);
   // Get number of days in each month
@@ -70,14 +72,23 @@ export default function Calendar({ eventModal, setEventModal }) {
 
   // Click on a date cell to add an event (modal pops up)
   // Double clicks don't work for some reason
-  function handleAddEvent() {
+  function handleOpenEventModal(index) {
     console.log("Clicked once");
-    setEventModal(!eventModal);
+    setSelectedDay(index);
+    setEventModal(true);
   }
   useEffect(() => {
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
+  function handleCreateEvent(index) {
+    if (selectedDay !== null) {
+      const newEventCreated = [...eventCreated];
+      newEventCreated[selectedDay] = true;
+      setEventCreated(newEventCreated);
+      setEventModal(false);
+    }
+  }
   return (
     <CalendarView>
       <MonthNavigation>
@@ -91,16 +102,21 @@ export default function Calendar({ eventModal, setEventModal }) {
         ))}
       </DaysofWeek>
       <Dates>
-        {calendarDays.map((day, index) => (
-          <Day key={index} className="date-cell" onClick={handleAddEvent}>
-            {day}
-            <Event />
+        {Array.from({ length: 31 }, (_, index) => (
+          <Day
+            key={index}
+            className="date-cell"
+            onClick={() => handleOpenEventModal(index)}
+          >
+            {index + 1}
+            {eventCreated[index] ? <Event /> : null}
           </Day>
         ))}
       </Dates>
       <EventModalCard $eventModal={eventModal}>
         Create event
         <EventTitle placeholder="Event title" />
+        <EventDate>Date in standard format</EventDate>
         <EventDistanceContainer>
           <EventDistance placeholder="Distance goal: e.g. 5km" />
           <KmSpan>Km</KmSpan>
@@ -116,7 +132,7 @@ export default function Calendar({ eventModal, setEventModal }) {
           <EventTypeOption>Long</EventTypeOption>
         </EventType>
         <EventNotes placeholder="Workout details here or any other notes" />
-        <EventSaveButton>Save</EventSaveButton>
+        <EventSaveButton onClick={handleCreateEvent}>Save</EventSaveButton>
       </EventModalCard>
     </CalendarView>
   );
@@ -203,4 +219,8 @@ const KmSpan = styled.span`
 const EventDistanceContainer = styled.div`
   display: flex;
   align-items: center;
+`;
+const EventDate = styled.div`
+  margin: 4px 0;
+  font-size: 12px;
 `;
