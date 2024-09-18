@@ -4,10 +4,10 @@ import Event from "../Event";
 export default function Calendar({ eventModal, setEventModal }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
-  const [eventCreated, setEventCreated] = useState(Array(31).fill(false));
+  const [eventCreated, setEventCreated] = useState(Array(31).fill([]));
   const [selectedDay, setSelectedDay] = useState(null);
   const [eventInputs, setEventInputs] = useState({
-    title: "",
+    id: null,
     date: "",
     distance: "",
     effort: "",
@@ -77,10 +77,12 @@ export default function Calendar({ eventModal, setEventModal }) {
   }
 
   // Click on a date cell to add an event (modal pops up)
+  // Double clicks don't work for some reason
   function handleOpenEventModal(index) {
     console.log("Clicked once");
     setSelectedDay(index);
-    setEventModal(!eventModal);
+    setEventInputs({ ...eventInputs, id: Date.now() }); // Assign a unique ID to the new event
+    setEventModal(true);
   }
   useEffect(() => {
     console.log("Event modal is " + eventModal);
@@ -89,7 +91,10 @@ export default function Calendar({ eventModal, setEventModal }) {
   function handleCreateEvent() {
     if (selectedDay !== null) {
       const newEventCreated = [...eventCreated];
-      newEventCreated[selectedDay] = { title: eventInputs.title };
+      newEventCreated[selectedDay] = [
+        ...newEventCreated[selectedDay],
+        { ...eventInputs },
+      ];
       setEventCreated(newEventCreated);
       setEventModal(false);
     }
@@ -106,6 +111,7 @@ export default function Calendar({ eventModal, setEventModal }) {
   function handleEventTypeChange(event) {
     setEventInputs({ ...eventInputs, type: event.target.value });
   }
+
   function handleEventNotesChange(event) {
     setEventInputs({ ...eventInputs, notes: event.target.value });
   }
@@ -129,9 +135,9 @@ export default function Calendar({ eventModal, setEventModal }) {
             onClick={() => handleOpenEventModal(index)}
           >
             {index + 1}
-            {eventCreated[index] ? (
-              <Event title={eventCreated[index].title} />
-            ) : null}
+            {eventCreated[index].map((evt) => (
+              <Event key={evt.id} title={evt.title} />
+            ))}
           </Day>
         ))}
       </Dates>
