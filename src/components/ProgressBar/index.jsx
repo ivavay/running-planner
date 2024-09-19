@@ -14,6 +14,6 @@ const ProgressBarBlock = styled.div`
 `;
 const ProgressBarFill = styled.div`
   background-color: lightblue;
-  width: 50%;
+  width: 1%;
   height: 100%;
 `;

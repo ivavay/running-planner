@@ -22,6 +22,7 @@ export default function Calendar({
     notes: "",
   };
   const [eventInputs, setEventInputs] = useState(initialEventInputs);
+  const [selectedWeek, setSelectedWeek] = useState(null);
   console.log(eventInputs);
   // Get number of days in each month
   function getDaysInMonth(month, year) {
@@ -149,11 +150,20 @@ export default function Calendar({
     }
   }
   let weeksTotalArr = Array.from({ length: programLength }, (_, i) => i + 1);
+  function handleWeekClick(weekNumber) {
+    setSelectedWeek(weekNumber);
+  }
+
   return (
     <CalendarView>
       <WeeksTotalContainer>
         {weeksTotalArr.map((index) => (
-          <WeekSelectionButton key={index}>Week {index}</WeekSelectionButton>
+          <WeekSelectionButton
+            onClick={() => handleWeekClick(index)}
+            key={index}
+          >
+            Week {index}
+          </WeekSelectionButton>
         ))}
       </WeeksTotalContainer>
       <MonthNavigation>
@@ -161,19 +171,36 @@ export default function Calendar({
         <Month>{`${monthNames[month]} ${year}`}</Month>
         <MonthButton onClick={handleNextMonth}>Next</MonthButton>
       </MonthNavigation>
-      <ProgressBar />
+      <WeeklyDistanceContainer>
+        {selectedWeek !== null &&
+        weeklyDistances[selectedWeek - 1] !== undefined ? (
+          <Distance>
+            Week {selectedWeek} Goal: 0 / {weeklyDistances[selectedWeek - 1]} km
+            reached
+          </Distance>
+        ) : null}
+      </WeeklyDistanceContainer>
+      {selectedWeek ? <ProgressBar /> : null}
       <DaysofWeek>
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div key={day}>{day}</div>
         ))}
       </DaysofWeek>
       <Dates>
-        {calendarDays.map((day, index) => (
-          <>
+        {calendarDays.map((day, index) => {
+          const weekNumber = Math.floor(index / 7) + 1;
+          console.log(selectedWeek);
+          return (
             <Day
               key={index}
               className="date-cell"
               onClick={() => handleOpenEventModal(index)}
+              style={{
+                border:
+                  selectedWeek === weekNumber
+                    ? "5px solid lightblue"
+                    : "1px solid #ccc",
+              }}
             >
               {day}
               {eventCreated[
@@ -182,8 +209,8 @@ export default function Calendar({
                 <Event key={event.id} title={event.title} />
               ))}
             </Day>
-          </>
-        ))}
+          );
+        })}
       </Dates>
       <EventModalCard $eventModal={eventModal}>
         Create event
@@ -326,6 +353,11 @@ const EventDeleteButton = styled.button`
   width: fit-content;
 `;
 const WeeksTotalContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+const Distance = styled.div``;
+const WeeklyDistanceContainer = styled.div`
   display: flex;
   justify-content: center;
 `;
