@@ -71,11 +71,14 @@ export default function Calendar({ eventModal, setEventModal }) {
     console.log("Clicked once");
     setSelectedDay(index);
     const existingEvent = eventCreated[index]?.[0];
+    const date = new Date(year, month, calendarDays[index])
+      .toLocaleDateString("en-CA")
+      .split("T")[0];
     // If event exists, populate the inputs,
     if (existingEvent) {
       setEventInputs(existingEvent);
     } else {
-      setEventInputs({ ...initialEventInputs, id: Date.now() });
+      setEventInputs({ ...initialEventInputs, id: Date.now(), date });
     }
     setEventModal(true);
   }
@@ -123,6 +126,18 @@ export default function Calendar({ eventModal, setEventModal }) {
   function handleEventNotesChange(event, field) {
     setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
+
+  function handleDeleteEvent() {
+    if (selectedDay !== null) {
+      setEventCreated((prevEvents) => {
+        const newEvents = [...prevEvents];
+        newEvents[selectedDay] = [];
+        return newEvents;
+      });
+      setEventModal(false);
+      setEventInputs(initialEventInputs);
+    }
+  }
   return (
     <CalendarView>
       <MonthNavigation>
@@ -157,7 +172,7 @@ export default function Calendar({ eventModal, setEventModal }) {
           value={eventInputs.title || ""}
           onChange={(e) => handleEventTitleChange(e, "title")}
         />
-        <EventDate>Date in standard format</EventDate>
+        <EventDate>Date in standard format: {eventInputs.date} </EventDate>
         <EventDistanceContainer>
           <EventDistance
             value={eventInputs.distance || ""}
@@ -192,6 +207,9 @@ export default function Calendar({ eventModal, setEventModal }) {
           placeholder="Workout details here or any other notes"
         />
         <EventSaveButton onClick={handleCreateEvent}>Save</EventSaveButton>
+        <EventDeleteButton onClick={handleDeleteEvent}>
+          Delete
+        </EventDeleteButton>
       </EventModalCard>
     </CalendarView>
   );
@@ -282,4 +300,7 @@ const EventDistanceContainer = styled.div`
 const EventDate = styled.div`
   margin: 4px 0;
   font-size: 12px;
+`;
+const EventDeleteButton = styled.button`
+  width: fit-content;
 `;
