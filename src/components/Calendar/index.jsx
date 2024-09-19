@@ -6,14 +6,16 @@ export default function Calendar({ eventModal, setEventModal }) {
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
   const [eventCreated, setEventCreated] = useState(Array(31).fill([]));
   const [selectedDay, setSelectedDay] = useState(null);
-  const [eventInputs, setEventInputs] = useState({
+  const initialEventInputs = {
     id: null,
     date: "",
     distance: "",
     effort: "",
     type: "",
     notes: "",
-  });
+  };
+  const [eventInputs, setEventInputs] = useState(initialEventInputs);
+
   // Get number of days in each month
   function getDaysInMonth(month, year) {
     return new Date(year, month, 0).getDate();
@@ -55,19 +57,6 @@ export default function Calendar({ eventModal, setEventModal }) {
     calendarDays.push(i);
   }
 
-  // Set today block's background to be different
-  //   useEffect(() => {
-  //     {
-  //       for (let i = 0; i < calendarDays.length; i++) {
-  //         if (calendarDays[i] === parseInt(todayDate)) {
-  //           setIsToday(true);
-  //           console.log("Today is " + todayDate, isToday);
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   }, [calendarDays]);
-
   function handlePrevMonth() {
     setCurrentDate(new Date(year, month - 1));
   }
@@ -81,7 +70,13 @@ export default function Calendar({ eventModal, setEventModal }) {
   function handleOpenEventModal(index) {
     console.log("Clicked once");
     setSelectedDay(index);
-    setEventInputs({ ...eventInputs, id: Date.now() }); // Assign a unique ID to the new event
+    const existingEvent = eventCreated[index]?.[0];
+    // If event exists, populate the inputs,
+    if (existingEvent) {
+      setEventInputs(existingEvent);
+    } else {
+      setEventInputs({ ...initialEventInputs, id: Date.now() });
+    }
     setEventModal(true);
   }
   useEffect(() => {
@@ -90,30 +85,43 @@ export default function Calendar({ eventModal, setEventModal }) {
 
   function handleCreateEvent() {
     if (selectedDay !== null) {
-      const newEventCreated = [...eventCreated];
-      newEventCreated[selectedDay] = [
-        ...newEventCreated[selectedDay],
-        { ...eventInputs },
-      ];
-      setEventCreated(newEventCreated);
+      setEventCreated((prevEvents) => {
+        const newEvents = [...prevEvents];
+        const existingEventIndex = newEvents[selectedDay].findIndex(
+          (evt) => evt.id === eventInputs.id
+        );
+        // If event already exists, update it, else create a new event
+        if (existingEventIndex !== -1) {
+          newEvents[selectedDay][existingEventIndex] = { ...eventInputs };
+        } else {
+          newEvents[selectedDay] = [
+            ...newEvents[selectedDay],
+            { ...eventInputs },
+          ];
+        }
+        return newEvents;
+      });
+
       setEventModal(false);
+      setEventInputs(initialEventInputs);
+      console.log("Event inputs reset to: ", initialEventInputs);
     }
   }
-  function handleEventTitleChange(event) {
-    setEventInputs({ ...eventInputs, title: event.target.value });
+  function handleEventTitleChange(event, field) {
+    setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
-  function handleEventDistanceChange(event) {
-    setEventInputs({ ...eventInputs, distance: event.target.value });
+  function handleEventDistanceChange(event, field) {
+    setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
-  function handleEventEffortChange(event) {
-    setEventInputs({ ...eventInputs, effort: event.target.value });
+  function handleEventEffortChange(event, field) {
+    setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
-  function handleEventTypeChange(event) {
-    setEventInputs({ ...eventInputs, type: event.target.value });
+  function handleEventTypeChange(event, field) {
+    setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
 
-  function handleEventNotesChange(event) {
-    setEventInputs({ ...eventInputs, notes: event.target.value });
+  function handleEventNotesChange(event, field) {
+    setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
   return (
     <CalendarView>
@@ -145,17 +153,22 @@ export default function Calendar({ eventModal, setEventModal }) {
         Create event
         <EventTitle
           placeholder="Event title"
-          onChange={handleEventTitleChange}
+          value={eventInputs.title || ""}
+          onChange={(e) => handleEventTitleChange(e, "title")}
         />
         <EventDate>Date in standard format</EventDate>
         <EventDistanceContainer>
           <EventDistance
-            onChange={handleEventDistanceChange}
+            value={eventInputs.distance || ""}
+            onChange={(e) => handleEventDistanceChange(e, "distance")}
             placeholder="Distance goal: e.g. 5km"
           />
           <KmSpan>Km</KmSpan>
         </EventDistanceContainer>
-        <EventEffort onChange={handleEventEffortChange}>
+        <EventEffort
+          value={eventInputs.effort || ""}
+          onChange={(e) => handleEventEffortChange(e, "effort")}
+        >
           <EventTypeOption value="">Select effort</EventTypeOption>
           <EventEffortOption value="Conversational">
             Conversational
@@ -163,14 +176,18 @@ export default function Calendar({ eventModal, setEventModal }) {
           <EventEffortOption value="Modereate">Moderate</EventEffortOption>
           <EventEffortOption value="Hard">Hard</EventEffortOption>
         </EventEffort>
-        <EventType onChange={handleEventTypeChange}>
+        <EventType
+          value={eventInputs.type || ""}
+          onChange={(e) => handleEventTypeChange(e, "type")}
+        >
           <EventTypeOption value="">Select type</EventTypeOption>
           <EventTypeOption value="Easy">Easy</EventTypeOption>
           <EventTypeOption value="Intervals">Intevals</EventTypeOption>
           <EventTypeOption value="Long">Long</EventTypeOption>
         </EventType>
         <EventNotes
-          onChange={handleEventNotesChange}
+          value={eventInputs.notes || ""}
+          onChange={(e) => handleEventNotesChange(e, "notes")}
           placeholder="Workout details here or any other notes"
         />
         <EventSaveButton onClick={handleCreateEvent}>Save</EventSaveButton>
