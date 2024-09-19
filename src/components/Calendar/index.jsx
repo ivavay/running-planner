@@ -136,16 +136,17 @@ export default function Calendar({ eventModal, setEventModal }) {
         ))}
       </DaysofWeek>
       <Dates>
-        {Array.from({ length: 31 }, (_, index) => (
+        {calendarDays.map((day, index) => (
           <Day
             key={index}
             className="date-cell"
             onClick={() => handleOpenEventModal(index)}
           >
-            {index + 1}
-            {eventCreated[index].map((evt) => (
-              <Event key={evt.id} title={evt.title} />
-            ))}
+            {day}
+            {eventCreated[index] &&
+              eventCreated[index].map((event) => (
+                <Event key={event.id} title={event.title} />
+              ))}
           </Day>
         ))}
       </Dates>
