@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 
-export default function WeeklyDistance({ programLength }) {
-  const [weeklyDistances, setWeeklyDistances] = useState([]);
+export default function WeeklyDistance({
+  programLength,
+  setWeeklyDistances,
+  weeklyDistances,
+}) {
   const [currentDistance, setCurrentDistance] = useState("");
 
   function addWeeklyDistance() {

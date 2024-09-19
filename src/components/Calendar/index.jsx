@@ -1,10 +1,17 @@
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Event from "../Event";
-export default function Calendar({ eventModal, setEventModal }) {
+import { ProgressBar } from "../ProgressBar";
+export default function Calendar({
+  setWeeklyDistances,
+  weeklyDistances,
+  eventModal,
+  setEventModal,
+  programLength,
+}) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
-  const [eventCreated, setEventCreated] = useState(Array(31).fill([]));
+  const [eventCreated, setEventCreated] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
   const initialEventInputs = {
     id: null,
@@ -15,7 +22,7 @@ export default function Calendar({ eventModal, setEventModal }) {
     notes: "",
   };
   const [eventInputs, setEventInputs] = useState(initialEventInputs);
-
+  console.log(eventInputs);
   // Get number of days in each month
   function getDaysInMonth(month, year) {
     return new Date(year, month, 0).getDate();
@@ -68,20 +75,31 @@ export default function Calendar({ eventModal, setEventModal }) {
   // Click on a date cell to add an event (modal pops up)
   // Double clicks don't work for some reason
   function handleOpenEventModal(index) {
-    console.log("Clicked once");
-    setSelectedDay(index);
-    const existingEvent = eventCreated[index]?.[0];
-    const date = new Date(year, month, calendarDays[index])
-      .toLocaleDateString("en-CA")
-      .split("T")[0];
-    // If event exists, populate the inputs,
-    if (existingEvent) {
-      setEventInputs(existingEvent);
-    } else {
-      setEventInputs({ ...initialEventInputs, id: Date.now(), date });
-    }
+    // console.log("Clicked once");
+    // setSelectedDay(index);
+
+    // // Create dates based on the index of calendarDays
+    // const date = new Date(year, month, calendarDays[index])
+    //   .toLocaleDateString()
+    //   .split("T")[0];
+    // setSelectedDay(date);
+    // const existingEvent = eventCreated[date]?.[0];
+    // console.log(date);
+    // // If event exists, populate the inputs,
+    // if (existingEvent) {
+    //   setEventInputs(existingEvent);
+    // } else {
+    //   setEventInputs({ ...initialEventInputs, id: Date.now(), date });
+    // }
+    // setEventModal(true);
+    const date = new Date(year, month, calendarDays[index]).toLocaleDateString(
+      "en-CA"
+    ); // Capture the date in YYYY-MM-DD format
+    setSelectedDay(date);
+    setEventInputs({ ...initialEventInputs, id: Date.now(), date });
     setEventModal(true);
   }
+
   useEffect(() => {
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
@@ -89,25 +107,17 @@ export default function Calendar({ eventModal, setEventModal }) {
   function handleCreateEvent() {
     if (selectedDay !== null) {
       setEventCreated((prevEvents) => {
-        const newEvents = [...prevEvents];
-        const existingEventIndex = newEvents[selectedDay].findIndex(
-          (evt) => evt.id === eventInputs.id
-        );
-        // If event already exists, update it, else create a new event
-        if (existingEventIndex !== -1) {
-          newEvents[selectedDay][existingEventIndex] = { ...eventInputs };
-        } else {
-          newEvents[selectedDay] = [
-            ...newEvents[selectedDay],
-            { ...eventInputs },
-          ];
+        const newEvents = { ...prevEvents };
+        if (!newEvents[selectedDay]) {
+          newEvents[selectedDay] = [];
         }
+        newEvents[selectedDay].push({ ...eventInputs });
         return newEvents;
       });
 
       setEventModal(false);
       setEventInputs(initialEventInputs);
-      console.log("Event inputs reset to: ", initialEventInputs);
+      console.log("Event created: ", eventCreated);
     }
   }
   function handleEventTitleChange(event, field) {
@@ -130,7 +140,7 @@ export default function Calendar({ eventModal, setEventModal }) {
   function handleDeleteEvent() {
     if (selectedDay !== null) {
       setEventCreated((prevEvents) => {
-        const newEvents = [...prevEvents];
+        const newEvents = { ...prevEvents };
         newEvents[selectedDay] = [];
         return newEvents;
       });
@@ -138,13 +148,20 @@ export default function Calendar({ eventModal, setEventModal }) {
       setEventInputs(initialEventInputs);
     }
   }
+  let weeksTotalArr = Array.from({ length: programLength }, (_, i) => i + 1);
   return (
     <CalendarView>
+      <WeeksTotalContainer>
+        {weeksTotalArr.map((index) => (
+          <WeekSelectionButton key={index}>Week {index}</WeekSelectionButton>
+        ))}
+      </WeeksTotalContainer>
       <MonthNavigation>
         <MonthButton onClick={handlePrevMonth}>Prev</MonthButton>
         <Month>{`${monthNames[month]} ${year}`}</Month>
         <MonthButton onClick={handleNextMonth}>Next</MonthButton>
       </MonthNavigation>
+      <ProgressBar />
       <DaysofWeek>
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div key={day}>{day}</div>
@@ -152,17 +169,20 @@ export default function Calendar({ eventModal, setEventModal }) {
       </DaysofWeek>
       <Dates>
         {calendarDays.map((day, index) => (
-          <Day
-            key={index}
-            className="date-cell"
-            onClick={() => handleOpenEventModal(index)}
-          >
-            {day}
-            {eventCreated[index] &&
-              eventCreated[index].map((event) => (
+          <>
+            <Day
+              key={index}
+              className="date-cell"
+              onClick={() => handleOpenEventModal(index)}
+            >
+              {day}
+              {eventCreated[
+                new Date(year, month, day).toLocaleDateString("en-CA")
+              ]?.map((event) => (
                 <Event key={event.id} title={event.title} />
               ))}
-          </Day>
+            </Day>
+          </>
         ))}
       </Dates>
       <EventModalCard $eventModal={eventModal}>
@@ -172,7 +192,7 @@ export default function Calendar({ eventModal, setEventModal }) {
           value={eventInputs.title || ""}
           onChange={(e) => handleEventTitleChange(e, "title")}
         />
-        <EventDate>Date in standard format: {eventInputs.date} </EventDate>
+        <EventDate>Date in local string format: {eventInputs.date} </EventDate>
         <EventDistanceContainer>
           <EventDistance
             value={eventInputs.distance || ""}
@@ -231,6 +251,7 @@ const Dates = styled.div`
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
 `;
+const WeekSelectionButton = styled.button``;
 const Day = styled.div`
   text-align: left;
   font-size: 10px;
@@ -303,4 +324,8 @@ const EventDate = styled.div`
 `;
 const EventDeleteButton = styled.button`
   width: fit-content;
+`;
+const WeeksTotalContainer = styled.div`
+  display: flex;
+  justify-content: center;
 `;

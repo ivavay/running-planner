@@ -3,6 +3,7 @@ import RaceForm from "../../components/RaceForm";
 import WeeklyDistance from "../../components/WeeklyDistance";
 import { useState } from "react";
 export default function Home() {
+  const [weeklyDistances, setWeeklyDistances] = useState([]);
   const [programLength, setProgramLength] = useState(0);
   const [eventModal, setEventModal] = useState(false);
   return (
@@ -12,8 +13,18 @@ export default function Home() {
         programLength={programLength}
         setProgramLength={setProgramLength}
       />
-      <WeeklyDistance programLength={programLength} />
-      <Calendar eventModal={eventModal} setEventModal={setEventModal} />
+      <WeeklyDistance
+        programLength={programLength}
+        weeklyDistances={weeklyDistances}
+        setWeeklyDistances={setWeeklyDistances}
+      />
+      <Calendar
+        programLength={programLength}
+        eventModal={eventModal}
+        setEventModal={setEventModal}
+        weeklyDistances={weeklyDistances}
+        setWeeklyDistances={setWeeklyDistances}
+      />
     </>
   );
 }
