@@ -2,9 +2,14 @@ import styled from "styled-components";
 import { useState } from "react";
 
 // eslint-disable-next-line react/prop-types
-export default function RaceForm({ programLength, setProgramLength }) {
-  const [programStartDate, setProgramStartDate] = useState("");
-  const [programEndDate, setProgramEndDate] = useState("");
+export default function RaceForm({
+  programLength,
+  setProgramLength,
+  programStartDate,
+  setProgramStartDate,
+  programEndDate,
+  setProgramEndDate,
+}) {
   const [raceDate, setRaceDate] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
@@ -79,7 +84,6 @@ export default function RaceForm({ programLength, setProgramLength }) {
 }
 
 const RaceInfo = styled.div``;
-
 const RaceDate = styled.input``;
 const RaceGoal = styled.input``;
 const SetButton = styled.button``;

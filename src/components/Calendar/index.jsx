@@ -8,6 +8,8 @@ export default function Calendar({
   eventModal,
   setEventModal,
   programLength,
+  programStartDate,
+  prrogramEndDate,
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
@@ -23,7 +25,6 @@ export default function Calendar({
   };
   const [eventInputs, setEventInputs] = useState(initialEventInputs);
   const [selectedWeek, setSelectedWeek] = useState(null);
-  console.log(eventInputs);
   // Get number of days in each month
   function getDaysInMonth(month, year) {
     return new Date(year, month, 0).getDate();
@@ -73,26 +74,17 @@ export default function Calendar({
     setCurrentDate(new Date(year, month + 1));
   }
 
+  // function handleJumpToMonth(weekNumber) {
+  //   Do later
+  //   I want to jump to the month where the selected week is
+  // }
+  function handleWeekClick(weekNumber) {
+    setSelectedWeek(weekNumber);
+    // handleJumpToMonth(weekNumber);
+  }
   // Click on a date cell to add an event (modal pops up)
   // Double clicks don't work for some reason
   function handleOpenEventModal(index) {
-    // console.log("Clicked once");
-    // setSelectedDay(index);
-
-    // // Create dates based on the index of calendarDays
-    // const date = new Date(year, month, calendarDays[index])
-    //   .toLocaleDateString()
-    //   .split("T")[0];
-    // setSelectedDay(date);
-    // const existingEvent = eventCreated[date]?.[0];
-    // console.log(date);
-    // // If event exists, populate the inputs,
-    // if (existingEvent) {
-    //   setEventInputs(existingEvent);
-    // } else {
-    //   setEventInputs({ ...initialEventInputs, id: Date.now(), date });
-    // }
-    // setEventModal(true);
     const date = new Date(year, month, calendarDays[index]).toLocaleDateString(
       "en-CA"
     ); // Capture the date in YYYY-MM-DD format
@@ -150,9 +142,6 @@ export default function Calendar({
     }
   }
   let weeksTotalArr = Array.from({ length: programLength }, (_, i) => i + 1);
-  function handleWeekClick(weekNumber) {
-    setSelectedWeek(weekNumber);
-  }
 
   return (
     <CalendarView>
@@ -188,18 +177,31 @@ export default function Calendar({
       </DaysofWeek>
       <Dates>
         {calendarDays.map((day, index) => {
-          const weekNumber = Math.floor(index / 7) + 1;
-          console.log(selectedWeek);
+          // Write the logic for the week here
+          const currentDate = new Date(year, month, day);
+          const programStartDateFormatted = new Date(programStartDate);
+          // Avoid timezone issues
+          currentDate.setHours(0, 0, 0, 0);
+          programStartDateFormatted.setHours(0, 0, 0, 0);
+          // Calculate the difference in days between the program start date and the current date
+          const diffInTime =
+            currentDate.getTime() - programStartDateFormatted.getTime();
+          console.log(programStartDate);
+          const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
+
+          // Calculate the week number
+          const weekNumber = Math.floor(diffInDays / 7) + 1;
+
           return (
             <Day
               key={index}
               className="date-cell"
               onClick={() => handleOpenEventModal(index)}
               style={{
-                border:
+                outline:
                   selectedWeek === weekNumber
-                    ? "5px solid lightblue"
-                    : "1px solid #ccc",
+                    ? "3px solid lightblue"
+                    : "1px solid #ebebeb",
               }}
             >
               {day}
