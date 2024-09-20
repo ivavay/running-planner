@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Event from "../Event";
 import { ProgressBar } from "../ProgressBar";
+import saveEvent from "../../../api";
 export default function Calendar({
   setWeeklyDistances,
   weeklyDistances,
@@ -9,7 +10,7 @@ export default function Calendar({
   setEventModal,
   programLength,
   programStartDate,
-  prrogramEndDate,
+  programEndDate,
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
@@ -98,6 +99,7 @@ export default function Calendar({
   }, [eventModal]);
 
   function handleCreateEvent() {
+    const programId = "zuVE3akJV5YsHC3vuYIP";
     if (selectedDay !== null) {
       setEventCreated((prevEvents) => {
         const newEvents = { ...prevEvents };
@@ -110,6 +112,8 @@ export default function Calendar({
 
       setEventModal(false);
       setEventInputs(initialEventInputs);
+      // Save event to firebase
+      saveEvent(eventInputs, programId);
       console.log("Event created: ", eventCreated);
     }
   }
@@ -177,19 +181,27 @@ export default function Calendar({
       </DaysofWeek>
       <Dates>
         {calendarDays.map((day, index) => {
-          // Write the logic for the week here
+          // Calculates the difference in days between the two dates
+          // Determines the week number based on that difference
+          // CurrentDate is the date being iterated over
           const currentDate = new Date(year, month, day);
           const programStartDateFormatted = new Date(programStartDate);
+          const programEndDateFormatted = new Date(programEndDate);
           // Avoid timezone issues
           currentDate.setHours(0, 0, 0, 0);
           programStartDateFormatted.setHours(0, 0, 0, 0);
+          programEndDateFormatted.setHours(0, 0, 0, 0);
+
+          // Check if current date is within the program start and end dates
+          if (currentDate > programEndDateFormatted) {
+            return <Day key={index} className="date-cell" />;
+          }
           // Calculate the difference in days between the program start date and the current date
           const diffInTime =
             currentDate.getTime() - programStartDateFormatted.getTime();
-          console.log(programStartDate);
-          const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
-
-          // Calculate the week number
+          // Convert time difference to days
+          1000 * 3600 * 24; // number of milliseconds in a day
+          const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24)); // Converts time diff from milliseconds to days
           const weekNumber = Math.floor(diffInDays / 7) + 1;
 
           return (
