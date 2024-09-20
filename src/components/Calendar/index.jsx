@@ -17,7 +17,6 @@ export default function Calendar({
   const [eventCreated, setEventCreated] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
   const initialEventInputs = {
-    id: null,
     date: "",
     distance: "",
     effort: "",
@@ -90,7 +89,7 @@ export default function Calendar({
       "en-CA"
     ); // Capture the date in YYYY-MM-DD format
     setSelectedDay(date);
-    setEventInputs({ ...initialEventInputs, id: Date.now(), date });
+    setEventInputs({ ...initialEventInputs, date });
     setEventModal(true);
   }
 
@@ -98,30 +97,33 @@ export default function Calendar({
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
-  function handleCreateEvent() {
+  async function handleCreateEvent() {
     const programId = "zuVE3akJV5YsHC3vuYIP";
     if (selectedDay !== null) {
-      setEventCreated((prevEvents) => {
-        const newEvents = { ...prevEvents };
-        if (!newEvents[selectedDay]) {
-          newEvents[selectedDay] = [];
-        }
-        newEvents[selectedDay].push({ ...eventInputs });
-        return newEvents;
-      });
+      try {
+        const eventId = await saveEvent(eventInputs, programId);
+        setEventCreated((prevEvents) => {
+          const newEvents = { ...prevEvents };
+          if (!newEvents[selectedDay]) {
+            newEvents[selectedDay] = [];
+          }
+          newEvents[selectedDay].push({ ...eventInputs, id: eventId });
+          return newEvents;
+        });
 
-      setEventModal(false);
-      setEventInputs(initialEventInputs);
-      // Save event to firebase
-      saveEvent(eventInputs, programId);
-      console.log("Event created: ", eventCreated);
+        setEventModal(false);
+        setEventInputs(initialEventInputs);
+        console.log("Event created: ", eventCreated);
+      } catch (error) {
+        console.error("Error creating event: ", error);
+      }
     }
   }
   function handleEventTitleChange(event, field) {
     setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
   function handleEventDistanceChange(event, field) {
-    setEventInputs({ ...eventInputs, [field]: event.target.value });
+    setEventInputs({ ...eventInputs, [field]: parseFloat(event.target.value) });
   }
   function handleEventEffortChange(event, field) {
     setEventInputs({ ...eventInputs, [field]: event.target.value });
