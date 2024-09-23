@@ -2,7 +2,8 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Event from "../Event";
 import { ProgressBar } from "../ProgressBar";
-import saveEvent from "../../../api";
+import { saveEvent } from "../../../api";
+
 export default function Calendar({
   setWeeklyDistances,
   weeklyDistances,
@@ -48,6 +49,11 @@ export default function Calendar({
     "November",
     "December",
   ];
+  // Util
+  // function toISOString(dateString) {
+  //   const date = new Date(dateString);
+  //   return date.toISOString();
+  // }
 
   // Get the first day of the month and the number of days in the month
   const firstDay = new Date(year, month, 1).getDay();
@@ -86,7 +92,7 @@ export default function Calendar({
   // Double clicks don't work for some reason
   function handleOpenEventModal(index) {
     const date = new Date(year, month, calendarDays[index]).toLocaleDateString(
-      "en-CA"
+      "en-US"
     ); // Capture the date in YYYY-MM-DD format
     setSelectedDay(date);
     setEventInputs({ ...initialEventInputs, date });
@@ -175,7 +181,14 @@ export default function Calendar({
           </Distance>
         ) : null}
       </WeeklyDistanceContainer>
-      {selectedWeek ? <ProgressBar /> : null}
+      {selectedWeek ? (
+        <ProgressBar
+          weeklyDistances={weeklyDistances}
+          programStartDate={programStartDate}
+          programEndDate={programEndDate}
+          selectedWeek={selectedWeek}
+        />
+      ) : null}
       <DaysofWeek>
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div key={day}>{day}</div>
