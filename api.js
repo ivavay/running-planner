@@ -1,4 +1,4 @@
-import { fireDb } from './src/firebase';
+import { fireDb } from './src/firebase.js';
 import { collection, addDoc } from 'firebase/firestore';
 
 const client_id = import.meta.env.VITE_STRAVA_CLIENT_ID;
