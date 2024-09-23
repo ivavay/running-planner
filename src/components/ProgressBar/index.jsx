@@ -10,7 +10,7 @@ export function ProgressBar({
   const [data, setData] = useState([]);
   const [weeklyReachedDistances, setWeeklyReachedDistances] = useState([]);
 
-  // Function only called when data or programStartDate changes
+  // Function only called when data or programStartDate changes, and when selectedWeek changes
   useEffect(() => {
     if (data.length > 0) {
       calculateWeeklyDistances(
