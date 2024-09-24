@@ -95,14 +95,16 @@ export default function Calendar({
       "en-CA"
     ); // Capture the date in YYYY-MM-DD format
     setSelectedDay(date);
-    console.log("Selected day: ", date);
-    // If an event already exists for that day, update the modal with the event details
-    // else just make the inputs of the modal empty
-
+    const existingEvent = eventCreated[date]?.[0];
+    // If event exists, populate the inputs,
+    if (existingEvent) {
+      setEventInputs(existingEvent);
+    } else {
+      setEventInputs({ ...initialEventInputs, date });
+    }
     setEventModal(true);
   }
 
-  console.log(eventCreated);
   useEffect(() => {
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
@@ -129,8 +131,11 @@ export default function Calendar({
       }
     }
   }
-  function handleEventTitleChange(event, field) {
-    setEventInputs({ ...eventInputs, [field]: event.target.value });
+  function handleEventTitleChange(event) {
+    setEventInputs((prevInputs) => ({
+      ...prevInputs,
+      title: event.target.value,
+    }));
   }
   function handleEventDistanceChange(event, field) {
     setEventInputs({ ...eventInputs, [field]: parseFloat(event.target.value) });
