@@ -92,13 +92,17 @@ export default function Calendar({
   // Double clicks don't work for some reason
   function handleOpenEventModal(index) {
     const date = new Date(year, month, calendarDays[index]).toLocaleDateString(
-      "en-US"
+      "en-CA"
     ); // Capture the date in YYYY-MM-DD format
     setSelectedDay(date);
-    setEventInputs({ ...initialEventInputs, date });
+    console.log("Selected day: ", date);
+    // If an event already exists for that day, update the modal with the event details
+    // else just make the inputs of the modal empty
+
     setEventModal(true);
   }
 
+  console.log(eventCreated);
   useEffect(() => {
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
@@ -233,7 +237,7 @@ export default function Calendar({
             >
               {day}
               {eventCreated[
-                new Date(year, month, day).toLocaleDateString("en-US")
+                new Date(year, month, day).toLocaleDateString("en-CA")
               ]?.map((event) => (
                 <Event key={event.id} title={event.title} />
               ))}
