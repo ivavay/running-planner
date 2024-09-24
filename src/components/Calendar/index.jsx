@@ -233,7 +233,7 @@ export default function Calendar({
             >
               {day}
               {eventCreated[
-                new Date(year, month, day).toLocaleDateString("en-CA")
+                new Date(year, month, day).toLocaleDateString("en-US")
               ]?.map((event) => (
                 <Event key={event.id} title={event.title} />
               ))}
