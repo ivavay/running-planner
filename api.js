@@ -43,7 +43,7 @@ export async function fetchData() {
   console.log('New Access Token: ', newAccessToken);
   console.log('ClientId: ', client_id);
 
-  const perPage = 30
+  const perPage = 60
   // First-time Authorization 
   const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
     method: 'GET',

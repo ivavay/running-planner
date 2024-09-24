@@ -139,8 +139,8 @@ export default function Recap() {
         label: "Pace (minutes per km)",
         data: decimalPaces,
         fill: false,
-        backgroundColor: "rgba(75,192,192,0.4)",
-        borderColor: "rgba(75,192,192,1)",
+        backgroundColor: "rgba(136, 201, 255, 0.574)",
+        borderColor: "#3b86ff",
       },
     ],
   };
@@ -152,8 +152,8 @@ export default function Recap() {
         label: "Distance (km)",
         data: monthlyDistances,
         fill: false,
-        backgroundColor: "rgba(75,192,192,0.4)",
-        borderColor: "rgba(75,192,192,1)",
+        backgroundColor: "rgba(136, 201, 255, 0.574)",
+        borderColor: "#3b86ff",
       },
     ],
   };
@@ -208,10 +208,11 @@ const Container = styled.div`
   align-items: center;
 `;
 const ChartCard = styled.div`
-  height: 300px;
+  height: auto;
+  width: 40%;
+  margin: 20px;
 `;
 const ChartContainer = styled.div`
   display: flex;
-  align-items: center;
-  flex-direction: column;
+  justify-content: center;
 `;
