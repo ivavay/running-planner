@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
-// import { fetchRunsFromAPI } from "../../../api";
 import { fetchData } from "../../../api";
+import { Line } from "react-chartjs-2";
+import { Chart, registerables } from "chart.js";
+
+// Register the line chart type
+Chart.register(...registerables);
 
 export default function Recap() {
   // Month navigation
@@ -39,7 +43,8 @@ export default function Recap() {
   const [longestRun, setLongestRun] = useState(null);
   const [averagePace, setAveragePace] = useState(null);
   const [monthlyTotalDistance, setMonthlyTotalDistance] = useState(null);
-
+  const [monthlyPaces, setMonthlyPaces] = useState([]);
+  const [monthlyDistances, setMonthlyDistances] = useState([]);
   // Printing run data from Strava API that occured in the current month
   useEffect(() => {
     fetchData()
@@ -55,6 +60,24 @@ export default function Recap() {
             activityDate.getFullYear() === year
           );
         });
+        // Reverse teh array so that the first run is the first run of the month
+        runs.reverse();
+        // Calculate paces for each run
+        const paces = runs.map((run) => {
+          const paceInMinutesPerKm = (1000 / (run.average_speed * 60)).toFixed(
+            2
+          );
+          const minutes = Math.floor(paceInMinutesPerKm);
+          const seconds = Math.round((paceInMinutesPerKm - minutes) * 60);
+          const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+          return `${minutes}:${formattedSeconds}`;
+        });
+        setMonthlyPaces(paces);
+
+        // Calculate distances for each run
+        const distances = runs.map((run) => (run.distance / 1000).toFixed(1));
+        setMonthlyDistances(distances);
+
         console.log(`${month}`, runs);
         // Find the smallest number in the runs array to find the fastest run
         const fastestAvgSpeed = Math.max(
@@ -100,6 +123,40 @@ export default function Recap() {
       .catch((error) => console.error("Error fetching data: ", error));
   }, [currentMonth, year]);
 
+  console.log("Monthly Paces: ", monthlyPaces);
+
+  function convertPaceToDecimal(pace) {
+    const [minutes, seconds] = pace.split(":");
+    return parseInt(minutes) + parseInt(seconds) / 60;
+  }
+
+  // Chart for pace distribution
+  const decimalPaces = monthlyPaces.map(convertPaceToDecimal);
+  const dataPace = {
+    labels: monthlyPaces,
+    datasets: [
+      {
+        label: "Pace (minutes per km)",
+        data: decimalPaces,
+        fill: false,
+        backgroundColor: "rgba(75,192,192,0.4)",
+        borderColor: "rgba(75,192,192,1)",
+      },
+    ],
+  };
+  // Chart for monthly distance progression
+  const dataDistance = {
+    labels: monthlyDistances,
+    datasets: [
+      {
+        label: "Distance (km)",
+        data: monthlyDistances,
+        fill: false,
+        backgroundColor: "rgba(75,192,192,0.4)",
+        borderColor: "rgba(75,192,192,1)",
+      },
+    ],
+  };
   return (
     <>
       <h1>Monthly Recap Page</h1>
@@ -117,9 +174,14 @@ export default function Recap() {
         </DataContainer>
       </Container>
       <ChartContainer>
-        <ChartCard>Pace Distribution (Line Chart)</ChartCard>
-        <ChartCard>Distance Progression (Line Chart) </ChartCard>
-        <ChartCard>Run Types (Pie Chart) </ChartCard>
+        <ChartCard>
+          Pace Distribution
+          <Line data={dataPace} />
+        </ChartCard>
+        <ChartCard>
+          Distance Progression
+          <Line data={dataDistance} />
+        </ChartCard>
       </ChartContainer>
     </>
   );
