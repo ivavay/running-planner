@@ -20,7 +20,7 @@ export default function Header() {
           <Link to="/manage">Manage</Link>
         </NavItem>
         <NavItem>
-          <Link to="/logout">Logout</Link>
+          <Link to="/login">Login</Link>
         </NavItem>
       </Navlinks>
     </Navbar>

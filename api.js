@@ -1,9 +1,41 @@
 import { fireDb } from './src/firebase.js';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, where, query, getDoc} from 'firebase/firestore';
 
 const client_id = import.meta.env.VITE_STRAVA_CLIENT_ID;
 const client_secret = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
 const refresh_token = import.meta.env.VITE_STRAVA_REFRESH_TOKEN;
+
+// Fix this to fetch events from Firestore based on logged in user id
+// Events are stored in a collection called "events" under program document
+
+export async function fetchEvents(userId) {
+  try {
+    // Query the programs collection to find the document with the matching user_id
+    const programsRef = collection(fireDb, "programs");
+    const q = query(programsRef, where("user_id", "==", userId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("No program found for this user.");
+      return [];
+    }
+
+    // Assuming there is only one program document per user
+    const programDoc = querySnapshot.docs[0];
+    const programId = programDoc.id;
+
+    // Access the events subcollection within the program document
+    const eventsRef = collection(fireDb, "programs", programId, "events");
+    const eventsSnapshot = await getDocs(eventsRef);
+    const events = eventsSnapshot.docs.map(doc => doc.data());
+
+    console.log(events);
+    return events;
+  } catch (error) {
+    console.error("Error fetching events: ", error);
+    return [];
+  }
+}
 
 export async function saveEvent(event, programId) {
     try {

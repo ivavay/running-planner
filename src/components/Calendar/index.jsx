@@ -12,6 +12,8 @@ export default function Calendar({
   programLength,
   programStartDate,
   programEndDate,
+  userId,
+  eventsData,
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
@@ -26,6 +28,20 @@ export default function Calendar({
   };
   const [eventInputs, setEventInputs] = useState(initialEventInputs);
   const [selectedWeek, setSelectedWeek] = useState(null);
+
+  useEffect(() => {
+    // Populate eventCreated state with eventsData
+    const eventsByDate = eventsData.reduce((acc, event) => {
+      const date = event.date;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(event);
+      return acc;
+    }, {});
+    setEventCreated(eventsByDate);
+  }, [eventsData]);
+
   // Get number of days in each month
   function getDaysInMonth(month, year) {
     return new Date(year, month, 0).getDate();
