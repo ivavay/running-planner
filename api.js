@@ -102,7 +102,9 @@ export async function fetchData() {
     throw new Error(`Failed to fetch athlete activities: ${response.status} - ${errorText}`);
   }
   
-  const json = await response.json();
+  let json = await response.json();
+  // Only return the run activities
+  json = json.filter(activity => activity.type === 'Run');
  // If status is okay, return the JSON data with just the run activies 
   return json 
 }
