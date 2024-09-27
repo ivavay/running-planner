@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Event from "../Event";
 import { ProgressBar } from "../ProgressBar";
-import { saveEvent } from "../../../api";
+import { saveEvent, deleteEvent } from "../../../api";
 
 export default function Calendar({
   setWeeklyDistances,
@@ -125,8 +125,9 @@ export default function Calendar({
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
+  const programId = "zuVE3akJV5YsHC3vuYIP";
+
   async function handleCreateEvent() {
-    const programId = "zuVE3akJV5YsHC3vuYIP";
     if (selectedDay !== null) {
       try {
         const eventId = await saveEvent(eventInputs, programId);
@@ -167,13 +168,10 @@ export default function Calendar({
     setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
 
-  function handleDeleteEvent() {
+  function handleDeleteEvent(event) {
     if (selectedDay !== null) {
-      setEventCreated((prevEvents) => {
-        const newEvents = { ...prevEvents };
-        newEvents[selectedDay] = [];
-        return newEvents;
-      });
+      // Run delete function for deleting from firestore
+      deleteEvent(event, programId);
       setEventModal(false);
       setEventInputs(initialEventInputs);
     }

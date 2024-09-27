@@ -1,5 +1,5 @@
 import { fireDb } from './src/firebase.js';
-import { collection, addDoc, getDocs, where, query, getDoc} from 'firebase/firestore';
+import { collection, addDoc, getDocs, where, query, deleteDoc} from 'firebase/firestore';
 
 const client_id = import.meta.env.VITE_STRAVA_CLIENT_ID;
 const client_secret = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
@@ -48,6 +48,19 @@ export async function saveEvent(event, programId) {
       }
 }
 
+export async function deleteEvent(event, programId) {
+  try {
+    const programIdFormatted = String(programId);
+    const docRef = collection(fireDb, "programs", programIdFormatted, "events");
+    const q = query(docRef, where("id", "==", event.id));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      deleteDoc(doc.ref);
+    });
+  } catch (error) {
+    console.error("Error deleting document: ", error);
+  }
+}
 
 // Gets a new access token from Strava using refresh token
 export async function fetchData() {
