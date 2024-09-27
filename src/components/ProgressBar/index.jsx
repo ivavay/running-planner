@@ -24,21 +24,18 @@ export function ProgressBar({
 
     // Set endOfWeek to 7 days after startOfWeek
     const endOfWeek = new Date(startOfWeek); // Copy the adjusted startOfWeek
-    endOfWeek.setDate(endOfWeek.getDate() + 6); // Add 6 to get the end of the week
+    endOfWeek.setDate(endOfWeek.getDate() + 7); // Add 6 to get the end of the week
 
     // Filter the weekly runs
     const weeklyRuns = data.filter((activity) => {
       const activityDate = new Date(activity.start_date_local);
-      return (
-        activityDate >= startOfWeek &&
-        activityDate <= endOfWeek &&
-        activity.type === "Run"
-      );
+      return activityDate >= startOfWeek && activityDate <= endOfWeek;
     });
 
     console.log("Weekly Runs: ", weeklyRuns);
     console.log("Start of the week: ", startOfWeek);
     console.log("End of the week: ", endOfWeek);
+    console.log("Number of runs for the week: ", weeklyRuns.length);
 
     setWeeklyReachedDistances(
       parseFloat(
