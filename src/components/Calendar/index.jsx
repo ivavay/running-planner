@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Event from "../Event";
 import { ProgressBar } from "../ProgressBar";
-import { saveEvent, deleteEvent } from "../../../api";
+import { saveEvent, deleteEvent, fetchData } from "../../../api";
 
 export default function Calendar({
   setWeeklyDistances,
@@ -28,6 +28,50 @@ export default function Calendar({
   };
   const [eventInputs, setEventInputs] = useState(initialEventInputs);
   const [selectedWeek, setSelectedWeek] = useState(null);
+  const [firebaseEvents, setFirebaseEvents] = useState([]);
+  const [stravaEvents, setStravaEvents] = useState([]);
+
+  // Set the states for firebase and strava events
+  useEffect(() => {
+    // Firebase events
+    setFirebaseEvents(eventsData);
+    // Strava events
+    fetchData().then((events) => {
+      setStravaEvents(events);
+    });
+  }, [eventsData]);
+
+  console.log("Firebase Events:", firebaseEvents);
+  console.log("Strava Events:", stravaEvents);
+
+  // Helper function to compare two dates
+  function areDatesEqual(date1, date2) {
+    const d1 = new Date(date1).toISOString().split("T")[0];
+    const d2 = new Date(date2).toISOString().split("T")[0];
+    return d1 === d2;
+  }
+
+  // Compare the Firebase events and Strava events
+  const compareData = () => {
+    return firebaseEvents.map((event) => {
+      const matched = stravaEvents.some((activity) => {
+        return (
+          areDatesEqual(event.date, activity.start_date_local) &&
+          (activity.distance / 1000).toFixed(2) >= event.distance
+        );
+      });
+
+      // Add a `distanceMatched` field based on whether the condition is met
+      return {
+        ...event,
+        distanceMatched: matched, // true if there's a match
+      };
+    });
+  };
+
+  const matchedEvents = compareData();
+  // Print if the events are matched
+  console.log("Matched Events: ", matchedEvents);
 
   useEffect(() => {
     // Populate eventCreated state with eventsData
@@ -251,9 +295,20 @@ export default function Calendar({
               {day}
               {eventCreated[
                 new Date(year, month, day).toLocaleDateString("en-CA")
-              ]?.map((event) => (
-                <Event key={event.id} title={event.title} />
-              ))}
+              ]?.map((event) => {
+                const matchedEvent = matchedEvents.find(
+                  (me) => me.date === event.date
+                );
+                return (
+                  <div key={event.id}>
+                    <Event
+                      key={event.id}
+                      title={event.title}
+                      goalReached={matchedEvent?.distanceMatched}
+                    />
+                  </div>
+                );
+              })}
             </Day>
           );
         })}
@@ -399,11 +454,6 @@ const EventDeleteButton = styled.button`
   width: fit-content;
 `;
 const WeeksTotalContainer = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-const Distance = styled.div``;
-const WeeklyDistanceContainer = styled.div`
   display: flex;
   justify-content: center;
 `;
