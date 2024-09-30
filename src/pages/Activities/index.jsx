@@ -3,6 +3,7 @@ import { fetchData } from "../../../api";
 import polyline from "@mapbox/polyline";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import styled from "styled-components";
 
 export default function Activities() {
   const [data, setData] = useState([]);
@@ -57,16 +58,20 @@ export default function Activities() {
             .padStart(2, "0")}`;
 
           return (
-            <div key={index}>
-              <h2>
-                {activity.name} -{" "}
-                {new Date(activity.start_date_local).toLocaleDateString()}
-              </h2>
-              <p>{formattedPace} / km</p>
-              <p>{(activity.distance / 1000).toFixed(2)} km</p>
-              <p>{(activity.moving_time / 60).toFixed(0)} minutes</p>
-              <img src={mapURLs[index]} alt={activity.name} />
-            </div>
+            <>
+              <div>
+                <div key={index}>
+                  <h2>
+                    {activity.name} -
+                    {new Date(activity.start_date_local).toLocaleDateString()}
+                  </h2>
+                  <p>{formattedPace} / km</p>
+                  <p>{(activity.distance / 1000).toFixed(2)} km</p>
+                  <p>{(activity.moving_time / 60).toFixed(0)} minutes</p>
+                  <img src={mapURLs[index]} alt={activity.name} />
+                </div>
+              </div>
+            </>
           );
         })}
       </div>

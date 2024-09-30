@@ -198,15 +198,6 @@ export default function Calendar({
         <Month>{`${monthNames[month]} ${year}`}</Month>
         <MonthButton onClick={handleNextMonth}>Next</MonthButton>
       </MonthNavigation>
-      <WeeklyDistanceContainer>
-        {selectedWeek !== null &&
-        weeklyDistances[selectedWeek - 1] !== undefined ? (
-          <Distance>
-            Week {selectedWeek} Goal: 0 / {weeklyDistances[selectedWeek - 1]} km
-            reached
-          </Distance>
-        ) : null}
-      </WeeklyDistanceContainer>
       {selectedWeek ? (
         <ProgressBar
           weeklyDistances={weeklyDistances}
