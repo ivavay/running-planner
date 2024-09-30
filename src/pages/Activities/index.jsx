@@ -6,8 +6,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 export default function Activities() {
   const [data, setData] = useState([]);
-  const mapContainerRef = useRef(null);
-  const mapRef = useRef(null);
+  const [mapURLs, setMapURLs] = useState([]);
 
   mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
   // Fetch the activities data from the API using await / async
@@ -20,6 +19,18 @@ export default function Activities() {
         const fetchedData = await fetchData();
         setData(fetchedData);
         console.log("Fetched Data: ", fetchedData);
+        // Map the strava acitvity data summary_polyline to a map image
+        // Use polyline directly, no need to decode the polyline
+        const mapURLs = fetchedData.map(
+          (activity) =>
+            `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/path-2+0000FF-1(${encodeURIComponent(
+              activity.map.summary_polyline
+            )})/auto/300x200?access_token=${
+              import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
+            }`
+        );
+        setMapURLs(mapURLs);
+        console.log("Map URLs: ", mapURLs);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -28,71 +39,37 @@ export default function Activities() {
     fetchActivitiesData();
   }, []);
 
-  useEffect(() => {
-    if (data.length > 0) {
-      const routes = [];
-      data.forEach((activity) => {
-        activity.coordinates = polyline.decode(activity.map.summary_polyline);
-        // Flip the longitude and latitude
-        activity.coordinates = activity.coordinates.map((coord) => [
-          coord[1],
-          coord[0],
-        ]);
-        routes.push(activity.coordinates);
-      });
-      console.log("First activity route: ", routes);
-      // I want to first display all the routes on one map
-      // Initialize the map
-      // I want the center to be the startig point of each route
-      mapRef.current = new mapboxgl.Map({
-        container: "map",
-        style: "mapbox://styles/mapbox/light-v11",
-        center: routes[0][0], // First point of the first route
-        zoom: 12,
-      });
-
-      mapRef.current.on("load", function () {
-        // Loop through each route and add it to the map
-        routes.forEach((route, index) => {
-          // Add a source for each route
-          mapRef.current.addSource(`route${index}`, {
-            type: "geojson",
-            data: {
-              type: "Feature",
-              geometry: {
-                type: "LineString",
-                coordinates: route, // Route coordinates
-              },
-            },
-          });
-
-          // Add a layer to display the route
-          mapRef.current.addLayer({
-            id: `route${index}`,
-            type: "line",
-            source: `route${index}`,
-            layout: {
-              "line-join": "round",
-              "line-cap": "round",
-            },
-            paint: {
-              "line-color": "#002bba",
-              "line-width": 2,
-            },
-          });
-        });
-      });
-    }
-  }, [data]);
-
   return (
     <>
       <h1>Activities</h1>
-      <div
-        ref={mapContainerRef}
-        id="map"
-        style={{ width: "100%", height: "70vh" }}
-      ></div>
+      <div>
+        {data.map((activity, index) => {
+          const pacePerKm =
+            activity.moving_time / 60 / (activity.distance / 1000);
+
+          // Extract minutes and seconds
+          const paceMinutes = Math.floor(pacePerKm);
+          const paceSeconds = Math.round((pacePerKm - paceMinutes) * 60);
+
+          // Ensure seconds are two digits (e.g., 5 becomes 05)
+          const formattedPace = `${paceMinutes}:${paceSeconds
+            .toString()
+            .padStart(2, "0")}`;
+
+          return (
+            <div key={index}>
+              <h2>
+                {activity.name} -{" "}
+                {new Date(activity.start_date_local).toLocaleDateString()}
+              </h2>
+              <p>{formattedPace} / km</p>
+              <p>{(activity.distance / 1000).toFixed(2)} km</p>
+              <p>{(activity.moving_time / 60).toFixed(0)} minutes</p>
+              <img src={mapURLs[index]} alt={activity.name} />
+            </div>
+          );
+        })}
+      </div>
     </>
   );
 }

@@ -131,6 +131,7 @@ export default function Calendar({
     if (selectedDay !== null) {
       try {
         const eventId = await saveEvent(eventInputs, programId);
+        console.log("Saved event ID: ", eventId);
         setEventCreated((prevEvents) => {
           const newEvents = { ...prevEvents };
           if (!newEvents[selectedDay]) {
@@ -142,6 +143,7 @@ export default function Calendar({
 
         setEventModal(false);
         setEventInputs(initialEventInputs);
+        console.log("Event ID after state update: ", eventId);
         console.log("Event created: ", eventCreated);
       } catch (error) {
         console.error("Error creating event: ", error);
@@ -168,10 +170,11 @@ export default function Calendar({
     setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
 
-  function handleDeleteEvent(event) {
+  async function handleDeleteEvent(e) {
     if (selectedDay !== null) {
       // Run delete function for deleting from firestore
-      deleteEvent(event, programId);
+      e.preventDefault();
+      await deleteEvent(eventInputs, programId);
       setEventModal(false);
       setEventInputs(initialEventInputs);
     }
