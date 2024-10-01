@@ -41,6 +41,16 @@ export default function Calendar({
     });
   }, [eventsData]);
 
+  useEffect(() => {
+    console.log("Event created state updated: ", eventCreated);
+    // Any additional logic to handle re-renders based on eventCreated state
+  }, [eventCreated]);
+
+  useEffect(() => {
+    console.log("Event inputs state updated: ", eventInputs);
+    // Any additional logic to handle re-renders based on eventInputs state
+  }, [eventInputs]);
+
   console.log("Firebase Events:", firebaseEvents);
   console.log("Strava Events:", stravaEvents);
 
@@ -156,12 +166,20 @@ export default function Calendar({
     ); // Capture the date in YYYY-MM-DD format
     setSelectedDay(date);
     const existingEvent = eventCreated[date]?.[0];
-    // If event exists, populate the inputs,
+    console.log("Existing event: ", existingEvent);
+    // If event exists, populate the inputs
     if (existingEvent) {
+      // Ensure the existing event has an ID
+      if (!existingEvent.id) {
+        console.error("Existing event does not have an ID.");
+        return;
+      }
       setEventInputs(existingEvent);
+      console.log("Existing event ID: ", existingEvent.id);
     } else {
       setEventInputs({ ...initialEventInputs, date });
     }
+
     setEventModal(true);
   }
 
@@ -178,13 +196,22 @@ export default function Calendar({
         console.log("Saved event ID: ", eventId);
         setEventCreated((prevEvents) => {
           const newEvents = { ...prevEvents };
-          if (!newEvents[selectedDay]) {
-            newEvents[selectedDay] = [];
+          const date = eventInputs.date;
+          if (!newEvents[date]) {
+            newEvents[date] = [];
           }
-          newEvents[selectedDay].push({ ...eventInputs, id: eventId });
+          if (eventId) {
+            const existingEventIndex = newEvents[date].findIndex(
+              (event) => event.id === eventId
+            );
+            if (existingEventIndex !== -1) {
+              newEvents[date][existingEventIndex] = eventInputs;
+            } else {
+              newEvents[date].push({ ...eventInputs, id: eventId });
+            }
+          }
           return newEvents;
         });
-
         setEventModal(false);
         setEventInputs(initialEventInputs);
         console.log("Event ID after state update: ", eventId);
@@ -216,11 +243,22 @@ export default function Calendar({
 
   async function handleDeleteEvent(e) {
     if (selectedDay !== null) {
-      // Run delete function for deleting from firestore
       e.preventDefault();
-      await deleteEvent(eventInputs, programId);
-      setEventModal(false);
-      setEventInputs(initialEventInputs);
+      try {
+        await deleteEvent(eventInputs, programId);
+        setEventModal(false);
+        setEventInputs(initialEventInputs);
+        setEventCreated((prevEvents) => {
+          const newEvents = { ...prevEvents };
+          newEvents[selectedDay] = newEvents[selectedDay].filter(
+            (event) => event.id !== eventInputs.id
+          );
+          return newEvents;
+        });
+        console.log(`Event with ID ${eventInputs.id} deleted successfully.`);
+      } catch (error) {
+        console.error("Error deleting event: ", error);
+      }
     }
   }
   let weeksTotalArr = Array.from({ length: programLength }, (_, i) => i + 1);
@@ -302,7 +340,6 @@ export default function Calendar({
                 return (
                   <div key={event.id}>
                     <Event
-                      key={event.id}
                       title={event.title}
                       goalReached={matchedEvent?.distanceMatched}
                     />

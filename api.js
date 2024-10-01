@@ -27,7 +27,7 @@ export async function fetchEvents(userId) {
     // Access the events subcollection within the program document
     const eventsRef = collection(fireDb, "programs", programId, "events");
     const eventsSnapshot = await getDocs(eventsRef);
-    const events = eventsSnapshot.docs.map(doc => doc.data());
+    const events = eventsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
 
     console.log(events);
     return events;
@@ -37,22 +37,22 @@ export async function fetchEvents(userId) {
   }
 }
 
-export async function saveEvent(event, programId) {
+export async function saveEvent(eventInputs, programId) {
   try {
     const programIdFormatted = String(programId);
     const eventsCollectionRef = collection(fireDb, "programs", programIdFormatted, "events");
 
-    if (event.id) {
+    if (eventInputs.id) {
       // If event ID exists, update the event
-      const eventDocRef = doc(eventsCollectionRef, event.id);
-      await setDoc(eventDocRef, event, { merge: true });
-      return event.id;
+      const eventDocRef = doc(eventsCollectionRef, eventInputs.id);
+      await setDoc(eventDocRef, eventInputs, { merge: true });
+      return eventInputs.id;
     } else {
       // If event ID does not exist, create a new event
-      const newEventDocRef = await addDoc(eventsCollectionRef, event);
+      const newEventDocRef = await addDoc(eventsCollectionRef, eventInputs);
       const newEventId = newEventDocRef.id;
       // Assign the new ID to the event object
-      event.id = newEventId;
+      eventInputs.id = newEventId;
       return newEventId;
     }
   } catch (error) {
@@ -63,15 +63,16 @@ export async function saveEvent(event, programId) {
 
 export async function deleteEvent(eventInputs, programId) {
   try {
-    console.log('Event Inputs: ', eventInputs.id);
-    // console.log(event.id);
-    // const programIdFormatted = String(programId);
-    // const docRef = collection(fireDb, "programs", programIdFormatted, "events");
-    // const q = query(docRef, where("id", "==", event.id));
-    // const querySnapshot = await getDocs(q);
-    // querySnapshot.forEach((doc) => {
-    //   deleteDoc(doc.ref);
-    // });
+    // If event ID is undefined or empty, throw an error
+    if (!eventInputs.id || eventInputs.id === "") {
+      throw new Error("Event ID is required to delete an event.");
+    }
+
+    const programIdFormatted = String(programId);
+    const eventDocRef = doc(fireDb, "programs", programIdFormatted, "events", eventInputs.id);
+    await deleteDoc(eventDocRef);
+
+    console.log(`Event with ID ${eventInputs.id} deleted successfully.`);
   } catch (error) {
     console.error("Error deleting document: ", error);
   }
