@@ -79,6 +79,7 @@ export default function Home() {
         setProgramStartDate={setProgramStartDate}
         setProgramEndDate={setProgramEndDate}
         programEndDate={programEndDate}
+        user={user}
       />
       <WeeklyDistance
         user={user}

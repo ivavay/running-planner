@@ -8,6 +8,79 @@ const refresh_token = import.meta.env.VITE_STRAVA_REFRESH_TOKEN;
 // Fix this to fetch events from Firestore based on logged in user id
 // Events are stored in a collection called "events" under program document
 
+// Retrieve program length data from Firestore
+export async function getProgramLength(userId) {
+  try {
+    // Query the programs collection to find the document with the matching user_id
+    const programsRef = collection(fireDb, "programs");
+    const q = query(programsRef, where("user_id", "==", userId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("No program found for this user.");
+      return null;
+    }
+
+    // Assuming there is only one program document per user
+    const programDoc = querySnapshot.docs[0];
+    const programData = programDoc.data();
+
+    // Extract the program_length object
+    const programLength = programData.program_length;
+
+    if (!programLength) {
+      console.log("Program length data not found.");
+      return null;
+    }
+
+    const { start_date, end_date } = programLength;
+    return { start_date, end_date };
+  } catch (error) {
+    console.error("Error retrieving program length: ", error);
+    return null;
+  }
+}
+
+// Save program length data to Firestore
+export async function saveProgramLength(userId, startDate, endDate) {
+  try {
+    // Query the programs collection to find the document with the matching user_id
+    const programsRef = collection(fireDb, "programs");
+    const q = query(programsRef, where("user_id", "==", userId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("No program found for this user.");
+      return;
+    }
+
+    // Assuming there is only one program document per user
+    const programDoc = querySnapshot.docs[0];
+    const programId = programDoc.id;
+
+    // Access the program document
+    const programRef = doc(fireDb, "programs", programId);
+    const programSnapshot = await getDoc(programRef);
+
+    if (!programSnapshot.exists()) {
+      console.log("Program document does not exist.");
+      return;
+    }
+
+    // Update the program_length object in the Firestore document
+    await setDoc(programRef, {
+      program_length: {
+        start_date: startDate,
+        end_date: endDate,
+      },
+    }, { merge: true });
+
+    console.log("Program length saved successfully.");
+  } catch (error) {
+    console.error("Error saving program length: ", error);
+  }
+}
+
 // Save weekly distamce goals to Firestore 
 export async function saveWeeklyDistances(weeklyDistances, userId) {
   try {
@@ -36,7 +109,7 @@ export async function saveWeeklyDistances(weeklyDistances, userId) {
 
     // Get the existing week array
     const programData = programSnapshot.data();
-    const weekArray = programData.week || [];
+    // const weekArray = programData.week || [];
 
     // Update the week array with the new weekly distances
      const updatedWeekArray = weeklyDistances.map((distance) => distance);
