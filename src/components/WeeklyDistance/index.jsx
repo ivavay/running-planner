@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
+import { saveWeeklyDistances, fetchWeeklyDistances } from "../../../api";
 
 export default function WeeklyDistance({
   programLength,
   setWeeklyDistances,
   weeklyDistances,
+  user,
 }) {
   const [currentDistance, setCurrentDistance] = useState("");
 
@@ -12,6 +14,7 @@ export default function WeeklyDistance({
     let distance = parseInt(currentDistance);
     setWeeklyDistances([...weeklyDistances, distance]);
     setCurrentDistance("");
+    saveWeeklyDistances(weeklyDistances, user.uid);
   }
   // Convert programLength to an array of weeks
   let weeksTotal = Array.from({ length: programLength }, (_, i) => i + 1);

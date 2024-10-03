@@ -81,6 +81,7 @@ export default function Home() {
         programEndDate={programEndDate}
       />
       <WeeklyDistance
+        user={user}
         programLength={programLength}
         weeklyDistances={weeklyDistances}
         setWeeklyDistances={setWeeklyDistances}
