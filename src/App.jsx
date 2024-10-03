@@ -5,6 +5,7 @@ import Badges from "./pages/Badges/index.jsx";
 import Recap from "./pages/Recap/index.jsx";
 import Activities from "./pages/Activities/index.jsx";
 import Manage from "./pages/Manage/index.jsx";
+import Login from "./pages/Login/index.jsx";
 import styled from "styled-components";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: "manage",
         element: <Manage />,
+      },
+      {
+        path: "login",
+        element: <Login />,
       },
     ],
   },

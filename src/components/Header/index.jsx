@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+
 export default function Header() {
   return (
     <Navbar>
@@ -20,7 +21,7 @@ export default function Header() {
           <Link to="/manage">Manage</Link>
         </NavItem>
         <NavItem>
-          <Link to="/logout">Logout</Link>
+          <Link to="/login">Login</Link>
         </NavItem>
       </Navlinks>
     </Navbar>

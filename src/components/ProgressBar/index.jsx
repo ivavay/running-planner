@@ -13,22 +13,20 @@ export function ProgressBar({
   // Function only called when data or programStartDate changes, and when selectedWeek changes
   useEffect(() => {
     if (data.length > 0) {
-      calculateWeeklyDistances(
-        data,
-        programStartDate,
-        weeklyReachedDistances,
-        selectedWeek
-      );
+      calculateWeeklyDistances(data, programStartDate, selectedWeek);
     }
-  }, [data, programStartDate, weeklyReachedDistances, selectedWeek]);
+  }, [data, programStartDate, selectedWeek]);
 
-  const calculateWeeklyDistances = (data, programStartDate) => {
+  const calculateWeeklyDistances = (data, programStartDate, selectedWeek) => {
+    // Set startOfWeek to the start of the selected week
     const startOfWeek = new Date(programStartDate);
-    // I want end of Week to be 7 days after startOfWeek
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 7);
+    startOfWeek.setDate(startOfWeek.getDate() + (selectedWeek - 1) * 7);
 
-    // Get the number of runs between weekly start and end dates
+    // Set endOfWeek to 7 days after startOfWeek
+    const endOfWeek = new Date(startOfWeek); // Copy the adjusted startOfWeek
+    endOfWeek.setDate(endOfWeek.getDate() + 7); // Add 6 to get the end of the week
+
+    // Filter the weekly runs
     const weeklyRuns = data.filter((activity) => {
       const activityDate = new Date(activity.start_date_local);
       return activityDate >= startOfWeek && activityDate <= endOfWeek;
@@ -37,6 +35,7 @@ export function ProgressBar({
     console.log("Weekly Runs: ", weeklyRuns);
     console.log("Start of the week: ", startOfWeek);
     console.log("End of the week: ", endOfWeek);
+    console.log("Number of runs for the week: ", weeklyRuns.length);
 
     setWeeklyReachedDistances(
       parseFloat(
@@ -48,7 +47,7 @@ export function ProgressBar({
   };
 
   console.log("Total Distance for the week: ", weeklyReachedDistances);
-  // Fetching the runs data from API using useEffecet
+  // Fetching the runs data from API using useEffect
   useEffect(() => {
     fetchData()
       .then((data) => {
@@ -64,13 +63,24 @@ export function ProgressBar({
   const goalWeeklyDistances = weeklyDistances[selectedWeek - 1];
 
   return (
-    <ProgressBarBlock>
-      <ProgressBarFill
-        style={{
-          width: `${(weeklyReachedDistances / goalWeeklyDistances) * 100}%`,
-        }}
-      />
-    </ProgressBarBlock>
+    <>
+      <WeeklyDistanceContainer>
+        {selectedWeek !== null &&
+        weeklyDistances[selectedWeek - 1] !== undefined ? (
+          <Distance>
+            Week {selectedWeek} Goal: {weeklyReachedDistances} /{" "}
+            {weeklyDistances[selectedWeek - 1]} km reached
+          </Distance>
+        ) : null}
+      </WeeklyDistanceContainer>
+      <ProgressBarBlock>
+        <ProgressBarFill
+          style={{
+            width: `${(weeklyReachedDistances / goalWeeklyDistances) * 100}%`,
+          }}
+        />
+      </ProgressBarBlock>
+    </>
   );
 }
 
@@ -83,4 +93,9 @@ const ProgressBarFill = styled.div`
   background-color: lightblue;
   width: 1%;
   height: 100%;
+`;
+const Distance = styled.div``;
+const WeeklyDistanceContainer = styled.div`
+  display: flex;
+  justify-content: center;
 `;

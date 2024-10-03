@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { useState } from "react";
-
-// eslint-disable-next-line react/prop-types
+import { useState, useEffect } from "react";
+import { saveProgramLength } from "../../../api";
+import { getProgramLength } from "../../../api";
 export default function RaceForm({
   programLength,
   setProgramLength,
@@ -9,10 +9,36 @@ export default function RaceForm({
   setProgramStartDate,
   programEndDate,
   setProgramEndDate,
+  user,
 }) {
   const [raceDate, setRaceDate] = useState("");
+  const [programDates, setProgramDates] = useState({
+    start_date: "",
+    end_date: "",
+  });
 
   const today = new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    async function fetchProgramDates() {
+      if (user && user.uid) {
+        const dates = await getProgramLength(user.uid);
+        if (dates) {
+          setProgramDates(dates);
+        }
+      }
+    }
+
+    fetchProgramDates();
+  }, [user, setProgramDates]);
+
+  useEffect(() => {
+    if (user && user.uid) {
+      if (programStartDate && programEndDate) {
+        saveProgramLength(user.uid, programStartDate, programEndDate);
+      }
+    }
+  }, [programStartDate, programEndDate, user]);
 
   function handleProgramStartChange(event) {
     setProgramStartDate(event.target.value);
@@ -79,6 +105,9 @@ export default function RaceForm({
         <SetButton onClick={calculateProgramWeeks}>Set</SetButton>
       </ProgramInfo>
       <ProgramWeeksTotal>{`Total weeks: ` + programLength}</ProgramWeeksTotal>
+      <h2>Program Dates</h2>
+      <p>Start Date: {programDates.start_date}</p>
+      <p>End Date: {programDates.end_date}</p>
     </>
   );
 }

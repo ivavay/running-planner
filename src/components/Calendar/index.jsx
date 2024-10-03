@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Event from "../Event";
 import { ProgressBar } from "../ProgressBar";
-import { saveEvent } from "../../../api";
+import { saveEvent, deleteEvent, fetchData } from "../../../api";
 
 export default function Calendar({
   setWeeklyDistances,
@@ -12,6 +12,8 @@ export default function Calendar({
   programLength,
   programStartDate,
   programEndDate,
+  userId,
+  eventsData,
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
@@ -26,6 +28,74 @@ export default function Calendar({
   };
   const [eventInputs, setEventInputs] = useState(initialEventInputs);
   const [selectedWeek, setSelectedWeek] = useState(null);
+  const [firebaseEvents, setFirebaseEvents] = useState([]);
+  const [stravaEvents, setStravaEvents] = useState([]);
+
+  // Set the states for firebase and strava events
+  useEffect(() => {
+    // Firebase events
+    setFirebaseEvents(eventsData);
+    // Strava events
+    fetchData().then((events) => {
+      setStravaEvents(events);
+    });
+  }, [eventsData]);
+
+  useEffect(() => {
+    console.log("Event created state updated: ", eventCreated);
+    // Any additional logic to handle re-renders based on eventCreated state
+  }, [eventCreated]);
+
+  useEffect(() => {
+    console.log("Event inputs state updated: ", eventInputs);
+    // Any additional logic to handle re-renders based on eventInputs state
+  }, [eventInputs]);
+
+  console.log("Firebase Events:", firebaseEvents);
+  console.log("Strava Events:", stravaEvents);
+
+  // Helper function to compare two dates
+  function areDatesEqual(date1, date2) {
+    const d1 = new Date(date1).toISOString().split("T")[0];
+    const d2 = new Date(date2).toISOString().split("T")[0];
+    return d1 === d2;
+  }
+
+  // Compare the Firebase events and Strava events
+  const compareData = () => {
+    return firebaseEvents.map((event) => {
+      const matched = stravaEvents.some((activity) => {
+        return (
+          areDatesEqual(event.date, activity.start_date_local) &&
+          (activity.distance / 1000).toFixed(2) >= event.distance
+        );
+      });
+
+      // Add a `distanceMatched` field based on whether the condition is met
+      return {
+        ...event,
+        distanceMatched: matched, // true if there's a match
+      };
+    });
+  };
+
+  const matchedEvents = compareData();
+  // Print if the events are matched
+  console.log("Matched Events: ", matchedEvents);
+
+  useEffect(() => {
+    // Populate eventCreated state with eventsData
+    const eventsByDate = eventsData.reduce((acc, event) => {
+      const date = event.date;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(event);
+      return acc;
+    }, {});
+    setEventCreated(eventsByDate);
+  }, [eventsData]);
+
   // Get number of days in each month
   function getDaysInMonth(month, year) {
     return new Date(year, month, 0).getDate();
@@ -96,12 +166,20 @@ export default function Calendar({
     ); // Capture the date in YYYY-MM-DD format
     setSelectedDay(date);
     const existingEvent = eventCreated[date]?.[0];
-    // If event exists, populate the inputs,
+    console.log("Existing event: ", existingEvent);
+    // If event exists, populate the inputs
     if (existingEvent) {
+      // Ensure the existing event has an ID
+      if (!existingEvent.id) {
+        console.error("Existing event does not have an ID.");
+        return;
+      }
       setEventInputs(existingEvent);
+      console.log("Existing event ID: ", existingEvent.id);
     } else {
       setEventInputs({ ...initialEventInputs, date });
     }
+
     setEventModal(true);
   }
 
@@ -109,22 +187,34 @@ export default function Calendar({
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
+  const programId = "zuVE3akJV5YsHC3vuYIP";
+
   async function handleCreateEvent() {
-    const programId = "zuVE3akJV5YsHC3vuYIP";
     if (selectedDay !== null) {
       try {
         const eventId = await saveEvent(eventInputs, programId);
+        console.log("Saved event ID: ", eventId);
         setEventCreated((prevEvents) => {
           const newEvents = { ...prevEvents };
-          if (!newEvents[selectedDay]) {
-            newEvents[selectedDay] = [];
+          const date = eventInputs.date;
+          if (!newEvents[date]) {
+            newEvents[date] = [];
           }
-          newEvents[selectedDay].push({ ...eventInputs, id: eventId });
+          if (eventId) {
+            const existingEventIndex = newEvents[date].findIndex(
+              (event) => event.id === eventId
+            );
+            if (existingEventIndex !== -1) {
+              newEvents[date][existingEventIndex] = eventInputs;
+            } else {
+              newEvents[date].push({ ...eventInputs, id: eventId });
+            }
+          }
           return newEvents;
         });
-
         setEventModal(false);
         setEventInputs(initialEventInputs);
+        console.log("Event ID after state update: ", eventId);
         console.log("Event created: ", eventCreated);
       } catch (error) {
         console.error("Error creating event: ", error);
@@ -151,15 +241,24 @@ export default function Calendar({
     setEventInputs({ ...eventInputs, [field]: event.target.value });
   }
 
-  function handleDeleteEvent() {
+  async function handleDeleteEvent(e) {
     if (selectedDay !== null) {
-      setEventCreated((prevEvents) => {
-        const newEvents = { ...prevEvents };
-        newEvents[selectedDay] = [];
-        return newEvents;
-      });
-      setEventModal(false);
-      setEventInputs(initialEventInputs);
+      e.preventDefault();
+      try {
+        await deleteEvent(eventInputs, programId);
+        setEventModal(false);
+        setEventInputs(initialEventInputs);
+        setEventCreated((prevEvents) => {
+          const newEvents = { ...prevEvents };
+          newEvents[selectedDay] = newEvents[selectedDay].filter(
+            (event) => event.id !== eventInputs.id
+          );
+          return newEvents;
+        });
+        console.log(`Event with ID ${eventInputs.id} deleted successfully.`);
+      } catch (error) {
+        console.error("Error deleting event: ", error);
+      }
     }
   }
   let weeksTotalArr = Array.from({ length: programLength }, (_, i) => i + 1);
@@ -181,15 +280,6 @@ export default function Calendar({
         <Month>{`${monthNames[month]} ${year}`}</Month>
         <MonthButton onClick={handleNextMonth}>Next</MonthButton>
       </MonthNavigation>
-      <WeeklyDistanceContainer>
-        {selectedWeek !== null &&
-        weeklyDistances[selectedWeek - 1] !== undefined ? (
-          <Distance>
-            Week {selectedWeek} Goal: 0 / {weeklyDistances[selectedWeek - 1]} km
-            reached
-          </Distance>
-        ) : null}
-      </WeeklyDistanceContainer>
       {selectedWeek ? (
         <ProgressBar
           weeklyDistances={weeklyDistances}
@@ -243,9 +333,19 @@ export default function Calendar({
               {day}
               {eventCreated[
                 new Date(year, month, day).toLocaleDateString("en-CA")
-              ]?.map((event) => (
-                <Event key={event.id} title={event.title} />
-              ))}
+              ]?.map((event) => {
+                const matchedEvent = matchedEvents.find(
+                  (me) => me.date === event.date
+                );
+                return (
+                  <div key={event.id}>
+                    <Event
+                      title={event.title}
+                      goalReached={matchedEvent?.distanceMatched}
+                    />
+                  </div>
+                );
+              })}
             </Day>
           );
         })}
@@ -391,11 +491,6 @@ const EventDeleteButton = styled.button`
   width: fit-content;
 `;
 const WeeksTotalContainer = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-const Distance = styled.div``;
-const WeeklyDistanceContainer = styled.div`
   display: flex;
   justify-content: center;
 `;

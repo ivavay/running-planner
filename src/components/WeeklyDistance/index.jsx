@@ -1,17 +1,41 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
+import { saveWeeklyDistances, fetchWeeklyDistances } from "../../../api";
 
 export default function WeeklyDistance({
   programLength,
   setWeeklyDistances,
   weeklyDistances,
+  user,
 }) {
   const [currentDistance, setCurrentDistance] = useState("");
+  const [selectedWeek, setSelectedWeek] = useState(1);
+
+  useEffect(() => {
+    async function loadWeeklyDistances() {
+      if (user && user.uid) {
+        const distances = await fetchWeeklyDistances(user.uid);
+        setWeeklyDistances(distances);
+      }
+    }
+
+    loadWeeklyDistances();
+  }, [user, setWeeklyDistances]);
 
   function addWeeklyDistance() {
     let distance = parseInt(currentDistance);
-    setWeeklyDistances([...weeklyDistances, distance]);
+    const updatedDistances = [...weeklyDistances];
+
+    // Check if the distance for the selected week already exists
+    if (updatedDistances[selectedWeek - 1] !== undefined) {
+      updatedDistances[selectedWeek - 1] = distance;
+    } else {
+      updatedDistances[selectedWeek - 1] = distance;
+    }
+
+    setWeeklyDistances(updatedDistances);
     setCurrentDistance("");
+    saveWeeklyDistances(updatedDistances, user.uid);
   }
   // Convert programLength to an array of weeks
   let weeksTotal = Array.from({ length: programLength }, (_, i) => i + 1);
@@ -24,7 +48,10 @@ export default function WeeklyDistance({
     <>
       <h2>Weekly Distance</h2>
       <WeeklyDistanceContainer>
-        <WeeklyDropdown>
+        <WeeklyDropdown
+          value={selectedWeek}
+          onChange={(event) => setSelectedWeek(parseInt(event.target.value))}
+        >
           {weeksTotal.map((week, index) => (
             <WeekOption key={index} value={week}>
               Week {week}
