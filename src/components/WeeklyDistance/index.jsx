@@ -9,10 +9,19 @@ export default function WeeklyDistance({
   user,
 }) {
   const [currentDistance, setCurrentDistance] = useState("");
+  const [selectedWeek, setSelectedWeek] = useState(1);
 
   function addWeeklyDistance() {
     let distance = parseInt(currentDistance);
-    const updatedDistances = [...weeklyDistances, distance];
+    const updatedDistances = [...weeklyDistances];
+
+    // Check if the distance for the selected week already exists
+    if (updatedDistances[selectedWeek - 1] !== undefined) {
+      updatedDistances[selectedWeek - 1] = distance;
+    } else {
+      updatedDistances[selectedWeek - 1] = distance;
+    }
+
     setWeeklyDistances(updatedDistances);
     setCurrentDistance("");
     saveWeeklyDistances(updatedDistances, user.uid);
@@ -28,7 +37,10 @@ export default function WeeklyDistance({
     <>
       <h2>Weekly Distance</h2>
       <WeeklyDistanceContainer>
-        <WeeklyDropdown>
+        <WeeklyDropdown
+          value={selectedWeek}
+          onChange={(event) => setSelectedWeek(parseInt(event.target.value))}
+        >
           {weeksTotal.map((week, index) => (
             <WeekOption key={index} value={week}>
               Week {week}
