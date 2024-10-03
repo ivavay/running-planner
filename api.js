@@ -39,10 +39,8 @@ export async function saveWeeklyDistances(weeklyDistances, userId) {
     const weekArray = programData.week || [];
 
     // Update the week array with the new weekly distances
-    const updatedWeekArray = weeklyDistances.map((distance, index) => ({
-      ...weekArray[index],
-      distance_goal: distance,
-    }));
+     const updatedWeekArray = weeklyDistances.map((distance) => distance);
+
 
     // Save the updated week array back to Firestore
     await setDoc(programRef, { ...programData, week: updatedWeekArray });
@@ -67,25 +65,10 @@ export async function fetchWeeklyDistances(userId) {
 
     // Assuming there is only one program document per user
     const programDoc = querySnapshot.docs[0];
-    const programId = programDoc.id;
+    const programData = programDoc.data();
 
-    // Access the program document
-    const programRef = doc(fireDb, "programs", programId);
-    const programSnapshot = await getDoc(programRef);
-
-    if (!programSnapshot.exists()) {
-      console.log("Program document does not exist.");
-      return [];
-    }
-
-    // Get the existing week array
-    const programData = programSnapshot.data();
-    const weekArray = programData.week || [];
-    // Extract the distance goals from the week array
-    const weeklyDistances = weekArray.map(week => week.distance_goal);
-
-    console.log("Weekly distances: ", weeklyDistances);
-    return weeklyDistances;
+    // Return the week array
+    return programData.week || [];
   } catch (error) {
     console.error("Error fetching weekly distances: ", error);
     return [];

@@ -11,6 +11,17 @@ export default function WeeklyDistance({
   const [currentDistance, setCurrentDistance] = useState("");
   const [selectedWeek, setSelectedWeek] = useState(1);
 
+  useEffect(() => {
+    async function loadWeeklyDistances() {
+      if (user && user.uid) {
+        const distances = await fetchWeeklyDistances(user.uid);
+        setWeeklyDistances(distances);
+      }
+    }
+
+    loadWeeklyDistances();
+  }, [user, setWeeklyDistances]);
+
   function addWeeklyDistance() {
     let distance = parseInt(currentDistance);
     const updatedDistances = [...weeklyDistances];
