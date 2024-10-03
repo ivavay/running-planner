@@ -39,9 +39,9 @@ export async function saveWeeklyDistances(weeklyDistances, userId) {
     const weekArray = programData.week || [];
 
     // Update the week array with the new weekly distances
-    const updatedWeekArray = weekArray.map((week, index) => ({
-      ...week,
-      distance_goal: weeklyDistances[index] !== undefined ? weeklyDistances[index] : week.distance_goal,
+    const updatedWeekArray = weeklyDistances.map((distance, index) => ({
+      ...weekArray[index],
+      distance_goal: distance,
     }));
 
     // Save the updated week array back to Firestore

@@ -12,9 +12,10 @@ export default function WeeklyDistance({
 
   function addWeeklyDistance() {
     let distance = parseInt(currentDistance);
-    setWeeklyDistances([...weeklyDistances, distance]);
+    const updatedDistances = [...weeklyDistances, distance];
+    setWeeklyDistances(updatedDistances);
     setCurrentDistance("");
-    saveWeeklyDistances(weeklyDistances, user.uid);
+    saveWeeklyDistances(updatedDistances, user.uid);
   }
   // Convert programLength to an array of weeks
   let weeksTotal = Array.from({ length: programLength }, (_, i) => i + 1);
