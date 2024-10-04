@@ -1,5 +1,6 @@
-import { fireDb } from './src/firebase.js';
-import { collection, setDoc, getDoc, doc, addDoc, getDocs, where, query, deleteDoc} from 'firebase/firestore';
+import { fireAuth, fireDb } from './src/firebase.js';
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, setDoc, getDoc, doc, addDoc, getDocs, where, query, deleteDoc } from 'firebase/firestore';
 
 const client_id = import.meta.env.VITE_STRAVA_CLIENT_ID;
 const client_secret = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
@@ -8,6 +9,59 @@ const refresh_token = import.meta.env.VITE_STRAVA_REFRESH_TOKEN;
 // Fix this to fetch events from Firestore based on logged in user id
 // Events are stored in a collection called "events" under program document
 
+// I want the program ID to be created in the create program function, not upon saving program length in the race form 
+// So that I can have separation of concerns 
+
+ // Function to get the logged-in user's program ID
+ export function getProgramId() {
+  return new Promise((resolve, reject) => {
+    
+    onAuthStateChanged(fireAuth, async (user) => {
+      if (user) {
+        const userId = user.uid;
+        try {
+          // Query the program document where user_id matches the logged-in user's ID
+          const q = query(collection(fireDb, "programs"), where("user_id", "==", userId));
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            const programDoc = querySnapshot.docs[0];
+            const programId = programDoc.id;
+            resolve(programId);
+          } else {
+            reject("No program found for the user.");
+          }
+        } catch (error) {
+          reject(error);
+        }
+      } else {
+        reject("No user is signed in.");
+      }
+    });
+  });
+};
+
+export async function createProgram(userId) {
+  try {
+    const programsRef = collection(fireDb, "programs");
+    const newProgramRef = doc(programsRef); // Generates a new document reference with a unique ID
+
+    // Set the new program document with default values
+    await setDoc(newProgramRef, {
+      program_id: newProgramRef.id,
+      user_id: userId,
+      program_length: {
+        start_date: null,
+        end_date: null,
+      },
+    });
+
+    console.log("Program created successfully with program ID:", newProgramRef.id);
+    return newProgramRef.id;
+  } catch (error) {
+    console.error("Error creating program: ", error);
+    throw error;
+  }
+}
 // Retrieve program length data from Firestore
 export async function getProgramLength(userId) {
   try {
@@ -25,47 +79,18 @@ export async function getProgramLength(userId) {
     const programDoc = querySnapshot.docs[0];
     const programData = programDoc.data();
 
-    // Extract the program_length object
-    const programLength = programData.program_length;
-
-    if (!programLength) {
-      console.log("Program length data not found.");
-      return null;
-    }
-
-    const { start_date, end_date } = programLength;
-    return { start_date, end_date };
+    console.log("Program length retrieved successfully:", programData.program_length);
+    return programData.program_length;
   } catch (error) {
     console.error("Error retrieving program length: ", error);
-    return null;
+    throw error;
   }
 }
 
 // Save program length data to Firestore
-export async function saveProgramLength(userId, startDate, endDate) {
+export async function saveProgramLength(programId, startDate, endDate) {
   try {
-    // Query the programs collection to find the document with the matching user_id
-    const programsRef = collection(fireDb, "programs");
-    const q = query(programsRef, where("user_id", "==", userId));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.log("No program found for this user.");
-      return;
-    }
-
-    // Assuming there is only one program document per user
-    const programDoc = querySnapshot.docs[0];
-    const programId = programDoc.id;
-
-    // Access the program document
     const programRef = doc(fireDb, "programs", programId);
-    const programSnapshot = await getDoc(programRef);
-
-    if (!programSnapshot.exists()) {
-      console.log("Program document does not exist.");
-      return;
-    }
 
     // Update the program_length object in the Firestore document
     await setDoc(programRef, {
@@ -75,9 +100,10 @@ export async function saveProgramLength(userId, startDate, endDate) {
       },
     }, { merge: true });
 
-    console.log("Program length saved successfully.");
+    console.log("Program length updated successfully.");
   } catch (error) {
-    console.error("Error saving program length: ", error);
+    console.error("Error updating program length: ", error);
+    throw error;
   }
 }
 

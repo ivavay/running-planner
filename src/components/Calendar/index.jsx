@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Event from "../Event";
 import { ProgressBar } from "../ProgressBar";
-import { saveEvent, deleteEvent, fetchData } from "../../../api";
+import { saveEvent, deleteEvent, fetchData, getProgramId } from "../../../api";
 
 export default function Calendar({
   setWeeklyDistances,
@@ -187,11 +187,12 @@ export default function Calendar({
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
-  const programId = "zuVE3akJV5YsHC3vuYIP";
+  // const programId = "zuVE3akJV5YsHC3vuYIP";
 
   async function handleCreateEvent() {
     if (selectedDay !== null) {
       try {
+        const programId = await getProgramId();
         const eventId = await saveEvent(eventInputs, programId);
         console.log("Saved event ID: ", eventId);
         setEventCreated((prevEvents) => {

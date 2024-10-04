@@ -10,6 +10,7 @@ export default function RaceForm({
   programEndDate,
   setProgramEndDate,
   user,
+  activeProgramId,
 }) {
   const [raceDate, setRaceDate] = useState("");
   const [programDates, setProgramDates] = useState({
