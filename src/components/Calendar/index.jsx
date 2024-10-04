@@ -246,6 +246,7 @@ export default function Calendar({
     if (selectedDay !== null) {
       e.preventDefault();
       try {
+        const programId = await getProgramId();
         await deleteEvent(eventInputs, programId);
         setEventModal(false);
         setEventInputs(initialEventInputs);

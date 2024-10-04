@@ -19,11 +19,11 @@ export default function RaceForm({
   });
 
   const today = new Date().toISOString().split("T")[0];
-
+  console.log("Is program active", activeProgramId);
   useEffect(() => {
     async function fetchProgramDates() {
-      if (user && user.uid) {
-        const dates = await getProgramLength(user.uid);
+      if (activeProgramId) {
+        const dates = await getProgramLength(activeProgramId);
         if (dates) {
           setProgramDates(dates);
         }
@@ -31,15 +31,15 @@ export default function RaceForm({
     }
 
     fetchProgramDates();
-  }, [user, setProgramDates]);
+  }, [activeProgramId, setProgramDates]);
 
   useEffect(() => {
-    if (user && user.uid) {
+    if (activeProgramId) {
       if (programStartDate && programEndDate) {
-        saveProgramLength(user.uid, programStartDate, programEndDate);
+        saveProgramLength(activeProgramId, programStartDate, programEndDate);
       }
     }
-  }, [programStartDate, programEndDate, user]);
+  }, [programStartDate, programEndDate, activeProgramId]);
 
   function handleProgramStartChange(event) {
     setProgramStartDate(event.target.value);
@@ -107,8 +107,8 @@ export default function RaceForm({
       </ProgramInfo>
       <ProgramWeeksTotal>{`Total weeks: ` + programLength}</ProgramWeeksTotal>
       <h2>Program Dates</h2>
-      <p>Start Date: {programDates.start_date}</p>
-      <p>End Date: {programDates.end_date}</p>
+      <p>Start Date: {programStartDate}</p>
+      <p>End Date: {programEndDate}</p>
     </>
   );
 }

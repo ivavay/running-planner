@@ -63,27 +63,19 @@ export async function createProgram(userId) {
   }
 }
 // Retrieve program length data from Firestore
-export async function getProgramLength(userId) {
+export async function getProgramLength(programId) {
   try {
-    // Query the programs collection to find the document with the matching user_id
-    const programsRef = collection(fireDb, "programs");
-    const q = query(programsRef, where("user_id", "==", userId));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.log("No program found for this user.");
+    const programRef = doc(fireDb, "programs", programId);
+    const programDoc = await getDoc(programRef);
+    if (programDoc.exists()) {
+      return programDoc.data().program_length;
+    } else {
+      console.log("No such document!");
       return null;
     }
-
-    // Assuming there is only one program document per user
-    const programDoc = querySnapshot.docs[0];
-    const programData = programDoc.data();
-
-    console.log("Program length retrieved successfully:", programData.program_length);
-    return programData.program_length;
   } catch (error) {
-    console.error("Error retrieving program length: ", error);
-    throw error;
+    console.error("Error getting program length: ", error);
+    return null;
   }
 }
 
@@ -108,23 +100,9 @@ export async function saveProgramLength(programId, startDate, endDate) {
 }
 
 // Save weekly distamce goals to Firestore 
-export async function saveWeeklyDistances(weeklyDistances, userId) {
+export async function saveWeeklyDistances(weeklyDistances, programId) {
   try {
-    // Query the programs collection to find the document with the matching user_id
-    const programsRef = collection(fireDb, "programs");
-    const q = query(programsRef, where("user_id", "==", userId));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.log("No program found for this user.");
-      return;
-    }
-
-    // Assuming there is only one program document per user
-    const programDoc = querySnapshot.docs[0];
-    const programId = programDoc.id;
-
-    // Access the program document
+    // Access the program document directly using programId
     const programRef = doc(fireDb, "programs", programId);
     const programSnapshot = await getDoc(programRef);
 
@@ -135,11 +113,9 @@ export async function saveWeeklyDistances(weeklyDistances, userId) {
 
     // Get the existing week array
     const programData = programSnapshot.data();
-    // const weekArray = programData.week || [];
 
     // Update the week array with the new weekly distances
-     const updatedWeekArray = weeklyDistances.map((distance) => distance);
-
+    const updatedWeekArray = weeklyDistances.map((distance) => distance);
 
     // Save the updated week array back to Firestore
     await setDoc(programRef, { ...programData, week: updatedWeekArray });
@@ -150,21 +126,19 @@ export async function saveWeeklyDistances(weeklyDistances, userId) {
   }
 
 } 
-export async function fetchWeeklyDistances(userId) {
+export async function fetchWeeklyDistances(programId) {
   try {
-    // Query the programs collection to find the document with the matching user_id
-    const programsRef = collection(fireDb, "programs");
-    const q = query(programsRef, where("user_id", "==", userId));
-    const querySnapshot = await getDocs(q);
+    // Access the program document directly using programId
+    const programRef = doc(fireDb, "programs", programId);
+    const programSnapshot = await getDoc(programRef);
 
-    if (querySnapshot.empty) {
-      console.log("No program found for this user.");
+    if (!programSnapshot.exists()) {
+      console.log("Program document does not exist.");
       return [];
     }
 
-    // Assuming there is only one program document per user
-    const programDoc = querySnapshot.docs[0];
-    const programData = programDoc.data();
+    // Get the program data
+    const programData = programSnapshot.data();
 
     // Return the week array
     return programData.week || [];
@@ -173,23 +147,9 @@ export async function fetchWeeklyDistances(userId) {
     return [];
   }
 }
-export async function fetchEvents(userId) {
+export async function fetchEvents(programId) {
   try {
-    // Query the programs collection to find the document with the matching user_id
-    const programsRef = collection(fireDb, "programs");
-    const q = query(programsRef, where("user_id", "==", userId));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.log("No program found for this user.");
-      return [];
-    }
-
-    // Assuming there is only one program document per user
-    const programDoc = querySnapshot.docs[0];
-    const programId = programDoc.id;
-
-    // Access the events subcollection within the program document
+    // Access the events subcollection within the program document using programId
     const eventsRef = collection(fireDb, "programs", programId, "events");
     const eventsSnapshot = await getDocs(eventsRef);
     const events = eventsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));

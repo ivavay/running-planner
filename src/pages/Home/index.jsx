@@ -40,9 +40,6 @@ export default function Home() {
       console.log(user.uid);
       if (user) {
         setUser(user);
-        const eventsData = await fetchEvents(user.uid);
-        setEventsData(eventsData);
-        console.log("Events Data:", eventsData);
       } else {
         setUser(null);
       }
@@ -69,6 +66,12 @@ export default function Home() {
     // Signout user
     signOut(fireAuth);
   }
+  function handleProgramSelect(programId) {
+    setActiveProgramId(programId);
+    fetchEvents(programId).then((eventsData) => {
+      setEventsData(eventsData);
+    });
+  }
 
   return (
     <>
@@ -77,16 +80,18 @@ export default function Home() {
           <h1>Welcome, {fireAuth.currentUser.displayName}</h1>
           <Button onClick={() => signOut(fireAuth)}>Sign Out</Button>
           <button onClick={handleCreateProgram}>Create new program</button>
-          <h2>Select Program</h2>
-          <ul>
-            {programs.map((programId) => (
-              <li key={programId}>
-                <button onClick={() => setActiveProgramId(programId)}>
-                  Program {programId}
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div>
+            <h2>Select Program</h2>
+            <ul>
+              {programs.map((programId) => (
+                <li key={programId}>
+                  <button onClick={() => handleProgramSelect(programId)}>
+                    Program {programId}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       ) : (
         <>
@@ -94,8 +99,9 @@ export default function Home() {
           <Button onClick={handleSignIn}>Sign In with Google</Button>
         </>
       )}
+
       <RaceForm
-        programId={activeProgramId}
+        activeProgramId={activeProgramId}
         programLength={programLength}
         setProgramLength={setProgramLength}
         programStartDate={programStartDate}
@@ -107,14 +113,14 @@ export default function Home() {
       <WeeklyDistance
         user={user}
         programLength={programLength}
-        programId={activeProgramId}
+        activeProgramId={activeProgramId}
         weeklyDistances={weeklyDistances}
         setWeeklyDistances={setWeeklyDistances}
       />
       {console.log("User ", user)}
       {user && (
         <Calendar
-          programId={activeProgramId}
+          activeProgramId={activeProgramId}
           user={user}
           eventsData={eventsData}
           programStartDate={programStartDate}
