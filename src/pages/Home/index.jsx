@@ -1,7 +1,7 @@
 import Calendar from "../../components/Calendar";
 import RaceForm from "../../components/RaceForm";
 import WeeklyDistance from "../../components/WeeklyDistance";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import {
   fireDb,
   fireAuth,
@@ -35,17 +35,41 @@ export default function Home() {
   }
 
   useEffect(() => {
+    console.log("useEffect running");
     // Check if user is logged in, if so, set user state
     const unsubscribe = fireAuth.onAuthStateChanged(async (user) => {
       console.log(user.uid);
       if (user) {
+        console.log("User signed in:", user.displayName);
         setUser(user);
+        fetchUserPrograms(user.uid);
       } else {
         setUser(null);
       }
     });
+
     return () => unsubscribe();
   }, []);
+
+  async function fetchUserPrograms(userId) {
+    try {
+      console.log("Fetching programs for userId:", userId);
+      // Fetch programs where user_id matches the logged-in user's ID
+      const q = query(
+        collection(fireDb, "programs"),
+        where("user_id", "==", userId)
+      );
+      const querySnapshot = await getDocs(q);
+      let programs = [];
+      querySnapshot.forEach((doc) => {
+        programs.push(doc.id);
+      });
+      setPrograms(programs);
+    } catch (error) {
+      console.error("Error fetching programs:", error);
+    }
+  }
+  console.log("Programs:", programs);
 
   function handleSignIn() {
     const provider = new GoogleAuthProvider();
@@ -66,8 +90,9 @@ export default function Home() {
     // Signout user
     signOut(fireAuth);
   }
+  // Function to handle program selection
   function handleProgramSelect(programId) {
-    setActiveProgramId(programId);
+    setActiveProgramId(programId); // Set the selected program ID in state
     fetchEvents(programId).then((eventsData) => {
       setEventsData(eventsData);
     });
@@ -78,6 +103,7 @@ export default function Home() {
       {fireAuth.currentUser ? (
         <div>
           <h1>Welcome, {fireAuth.currentUser.displayName}</h1>
+
           <Button onClick={() => signOut(fireAuth)}>Sign Out</Button>
           <button onClick={handleCreateProgram}>Create new program</button>
           <div>
@@ -95,7 +121,6 @@ export default function Home() {
         </div>
       ) : (
         <>
-          <h1>Home Page: {activeProgramId}</h1>
           <Button onClick={handleSignIn}>Sign In with Google</Button>
         </>
       )}
@@ -111,9 +136,9 @@ export default function Home() {
         user={user}
       />
       <WeeklyDistance
+        activeProgramId={activeProgramId}
         user={user}
         programLength={programLength}
-        activeProgramId={activeProgramId}
         weeklyDistances={weeklyDistances}
         setWeeklyDistances={setWeeklyDistances}
       />

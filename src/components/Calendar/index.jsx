@@ -193,6 +193,7 @@ export default function Calendar({
     if (selectedDay !== null) {
       try {
         const programId = await getProgramId();
+        console.log("Program ID for created event: ", programId);
         const eventId = await saveEvent(eventInputs, programId);
         console.log("Saved event ID: ", eventId);
         setEventCreated((prevEvents) => {

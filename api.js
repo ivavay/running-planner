@@ -12,33 +12,42 @@ const refresh_token = import.meta.env.VITE_STRAVA_REFRESH_TOKEN;
 // I want the program ID to be created in the create program function, not upon saving program length in the race form 
 // So that I can have separation of concerns 
 
- // Function to get the logged-in user's program ID
- export function getProgramId() {
+// Function to get the active program ID from local storage
+export function getActiveProgramId() {
+  return localStorage.getItem('activeProgramId');
+}
+
+// Function to get the logged-in user's program ID
+export function getProgramId() {
   return new Promise((resolve, reject) => {
-    
-    onAuthStateChanged(fireAuth, async (user) => {
-      if (user) {
-        const userId = user.uid;
-        try {
-          // Query the program document where user_id matches the logged-in user's ID
-          const q = query(collection(fireDb, "programs"), where("user_id", "==", userId));
-          const querySnapshot = await getDocs(q);
-          if (!querySnapshot.empty) {
-            const programDoc = querySnapshot.docs[0];
-            const programId = programDoc.id;
-            resolve(programId);
-          } else {
-            reject("No program found for the user.");
+    const activeProgramId = getActiveProgramId();
+    if (activeProgramId) {
+      resolve(activeProgramId);
+    } else {
+      onAuthStateChanged(fireAuth, async (user) => {
+        if (user) {
+          const userId = user.uid;
+          try {
+            // Query the program document where user_id matches the logged-in user's ID
+            const q = query(collection(fireDb, "programs"), where("user_id", "==", userId));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+              const programDoc = querySnapshot.docs[0];
+              const programId = programDoc.id;
+              resolve(programId);
+            } else {
+              reject("No program found for the user.");
+            }
+          } catch (error) {
+            reject(error);
           }
-        } catch (error) {
-          reject(error);
+        } else {
+          reject("No user is signed in.");
         }
-      } else {
-        reject("No user is signed in.");
-      }
-    });
+      });
+    }
   });
-};
+}
 
 export async function createProgram(userId) {
   try {
@@ -104,6 +113,7 @@ export async function saveWeeklyDistances(weeklyDistances, programId) {
   try {
     // Access the program document directly using programId
     const programRef = doc(fireDb, "programs", programId);
+   
     const programSnapshot = await getDoc(programRef);
 
     if (!programSnapshot.exists()) {
@@ -164,6 +174,7 @@ export async function fetchEvents(programId) {
 
 export async function saveEvent(eventInputs, programId) {
   try {
+
     const programIdFormatted = String(programId);
     const eventsCollectionRef = collection(fireDb, "programs", programIdFormatted, "events");
 

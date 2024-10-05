@@ -19,7 +19,9 @@ export default function RaceForm({
   });
 
   const today = new Date().toISOString().split("T")[0];
-  console.log("Is program active", activeProgramId);
+
+  // Use active program ID from local storage to fetch program dates
+  console.log("Active program ID: ", activeProgramId);
   useEffect(() => {
     async function fetchProgramDates() {
       if (activeProgramId) {
