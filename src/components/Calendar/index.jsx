@@ -309,10 +309,6 @@ export default function Calendar({
           programStartDateFormatted.setHours(0, 0, 0, 0);
           programEndDateFormatted.setHours(0, 0, 0, 0);
 
-          // Check if current date is within the program start and end dates
-          if (currentDate > programEndDateFormatted) {
-            return <Day key={index} className="date-cell" />;
-          }
           // Calculate the difference in days between the program start date and the current date
           const diffInTime =
             currentDate.getTime() - programStartDateFormatted.getTime();
