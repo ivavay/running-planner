@@ -14,6 +14,7 @@ export default function Calendar({
   programEndDate,
   userId,
   eventsData,
+  activeProgramId,
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const todayDate = new Date().toISOString().split("T")[0].slice(-2);
@@ -192,28 +193,29 @@ export default function Calendar({
   async function handleCreateEvent() {
     if (selectedDay !== null) {
       try {
-        const programId = await getProgramId();
-        console.log("Program ID for created event: ", programId);
-        const eventId = await saveEvent(eventInputs, programId);
-        console.log("Saved event ID: ", eventId);
-        setEventCreated((prevEvents) => {
-          const newEvents = { ...prevEvents };
-          const date = eventInputs.date;
-          if (!newEvents[date]) {
-            newEvents[date] = [];
-          }
-          if (eventId) {
-            const existingEventIndex = newEvents[date].findIndex(
-              (event) => event.id === eventId
-            );
-            if (existingEventIndex !== -1) {
-              newEvents[date][existingEventIndex] = eventInputs;
-            } else {
-              newEvents[date].push({ ...eventInputs, id: eventId });
+        console.log("Program ID for created event: ", activeProgramId);
+        if (activeProgramId) {
+          const eventId = await saveEvent(eventInputs, activeProgramId);
+          setEventCreated((prevEvents) => {
+            const newEvents = { ...prevEvents };
+            const date = eventInputs.date;
+            if (!newEvents[date]) {
+              newEvents[date] = [];
             }
-          }
-          return newEvents;
-        });
+            if (eventId) {
+              const existingEventIndex = newEvents[date].findIndex(
+                (event) => event.id === eventId
+              );
+              if (existingEventIndex !== -1) {
+                newEvents[date][existingEventIndex] = eventInputs;
+              } else {
+                newEvents[date].push({ ...eventInputs, id: eventId });
+              }
+            }
+            return newEvents;
+          });
+        }
+
         setEventModal(false);
         setEventInputs(initialEventInputs);
         console.log("Event ID after state update: ", eventId);
@@ -247,8 +249,8 @@ export default function Calendar({
     if (selectedDay !== null) {
       e.preventDefault();
       try {
-        const programId = await getProgramId();
-        await deleteEvent(eventInputs, programId);
+        // const programId = await getProgramId();
+        await deleteEvent(eventInputs, activeProgramId);
         setEventModal(false);
         setEventInputs(initialEventInputs);
         setEventCreated((prevEvents) => {

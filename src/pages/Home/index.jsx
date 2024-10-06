@@ -10,7 +10,7 @@ import {
   signOut,
 } from "../../firebase";
 import { useEffect, useState } from "react";
-import { fetchEvents, createProgram } from "../../../api";
+import { fetchEvents, createProgram, getRaceInfo } from "../../../api";
 import styled from "styled-components";
 
 export default function Home() {
@@ -23,11 +23,25 @@ export default function Home() {
   const [activeProgramId, setActiveProgramId] = useState(null);
   const [user, setUser] = useState(null);
   const [eventsData, setEventsData] = useState([]);
+  const [raceName, setRaceName] = useState("");
+  const [raceDate, setRaceDate] = useState("");
+  const [raceGoal, setRaceGoal] = useState("");
+  const [raceInfo, setRaceInfo] = useState(null);
+  const [programRaceInfo, setProgramRaceInfo] = useState({});
 
   function handleCreateProgram() {
     createProgram(user.uid).then((newProgramId) => {
       setPrograms((prevPrograms) => [...prevPrograms, newProgramId]);
       setActiveProgramId(newProgramId);
+      // Reset race info and inputs
+      setRaceInfo(null);
+      setRaceName("");
+      setRaceDate("");
+      setRaceGoal("");
+      // Reset program start and end dates
+      setProgramStartDate("");
+      setProgramEndDate("");
+
       fetchEvents(newProgramId).then((eventsData) => {
         setEventsData(eventsData);
       });
@@ -61,15 +75,22 @@ export default function Home() {
       );
       const querySnapshot = await getDocs(q);
       let programs = [];
-      querySnapshot.forEach((doc) => {
-        programs.push(doc.id);
-      });
+      let raceInfo = {};
+      for (const doc of querySnapshot.docs) {
+        const programId = doc.id;
+        programs.push(programId);
+        const raceData = await getRaceInfo(programId);
+        console.log("Race data:", raceData);
+        raceInfo[programId] = raceData
+          ? raceData.race.race_name
+          : "No Race Info";
+      }
       setPrograms(programs);
+      setProgramRaceInfo(raceInfo);
     } catch (error) {
       console.error("Error fetching programs:", error);
     }
   }
-  console.log("Programs:", programs);
 
   function handleSignIn() {
     const provider = new GoogleAuthProvider();
@@ -98,6 +119,11 @@ export default function Home() {
     });
   }
 
+  // Rerender the entire component when activeProgramId changes
+  useEffect(() => {
+    console.log("Active Program ID:", activeProgramId);
+  }, [activeProgramId]);
+
   return (
     <>
       {fireAuth.currentUser ? (
@@ -112,7 +138,7 @@ export default function Home() {
               {programs.map((programId) => (
                 <li key={programId}>
                   <button onClick={() => handleProgramSelect(programId)}>
-                    Program {programId}
+                    {programRaceInfo[programId]}
                   </button>
                 </li>
               ))}
@@ -134,6 +160,15 @@ export default function Home() {
         setProgramEndDate={setProgramEndDate}
         programEndDate={programEndDate}
         user={user}
+        setRaceDate={setRaceDate}
+        setRaceGoal={setRaceGoal}
+        setRaceName={setRaceName}
+        setRaceInfo={setRaceInfo}
+        raceDate={raceDate}
+        raceGoal={raceGoal}
+        raceName={raceName}
+        raceInfo={raceInfo}
+        programRaceInfo={programRaceInfo}
       />
       <WeeklyDistance
         activeProgramId={activeProgramId}
