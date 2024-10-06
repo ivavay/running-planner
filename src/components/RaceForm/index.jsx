@@ -12,11 +12,15 @@ export default function RaceForm({
   setProgramEndDate,
   user,
   activeProgramId,
+  setRaceDate,
+  setRaceGoal,
+  setRaceName,
+  setRaceInfo,
+  raceInfo,
+  raceName,
+  raceDate,
+  raceGoal,
 }) {
-  const [raceName, setRaceName] = useState("");
-  const [raceDate, setRaceDate] = useState("");
-  const [raceGoal, setRaceGoal] = useState("");
-  const [raceInfo, setRaceInfo] = useState(null);
   const [programDates, setProgramDates] = useState({
     start_date: "",
     end_date: "",
@@ -26,7 +30,6 @@ export default function RaceForm({
     async function fetchRaceInfo() {
       if (activeProgramId) {
         const info = await getRaceInfo(activeProgramId);
-        console.log("Fetched Race Info:", info); // Debugging log
         if (info) {
           setRaceInfo(info.race);
           setRaceName(info.race.race_name);
@@ -38,7 +41,7 @@ export default function RaceForm({
 
     fetchRaceInfo();
   }, [activeProgramId]);
-  console.log("RaceInfo:", raceInfo);
+
   const handleSaveRaceInfo = async () => {
     if (activeProgramId) {
       await saveRaceInfo(raceName, raceDate, raceGoal, activeProgramId);

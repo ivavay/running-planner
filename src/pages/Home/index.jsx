@@ -23,11 +23,24 @@ export default function Home() {
   const [activeProgramId, setActiveProgramId] = useState(null);
   const [user, setUser] = useState(null);
   const [eventsData, setEventsData] = useState([]);
+  const [raceName, setRaceName] = useState("");
+  const [raceDate, setRaceDate] = useState("");
+  const [raceGoal, setRaceGoal] = useState("");
+  const [raceInfo, setRaceInfo] = useState(null);
 
   function handleCreateProgram() {
     createProgram(user.uid).then((newProgramId) => {
       setPrograms((prevPrograms) => [...prevPrograms, newProgramId]);
       setActiveProgramId(newProgramId);
+      // Reset race info and inputs
+      setRaceInfo(null);
+      setRaceName("");
+      setRaceDate("");
+      setRaceGoal("");
+      // Reset program start and end dates
+      setProgramStartDate("");
+      setProgramEndDate("");
+
       fetchEvents(newProgramId).then((eventsData) => {
         setEventsData(eventsData);
       });
@@ -134,6 +147,14 @@ export default function Home() {
         setProgramEndDate={setProgramEndDate}
         programEndDate={programEndDate}
         user={user}
+        setRaceDate={setRaceDate}
+        setRaceGoal={setRaceGoal}
+        setRaceName={setRaceName}
+        setRaceInfo={setRaceInfo}
+        raceDate={raceDate}
+        raceGoal={raceGoal}
+        raceName={raceName}
+        raceInfo={raceInfo}
       />
       <WeeklyDistance
         activeProgramId={activeProgramId}
