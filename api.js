@@ -71,6 +71,42 @@ export async function createProgram(userId) {
     throw error;
   }
 }
+
+// Save race info to Firestore, which includes the race name, race date, and race goal 
+export async function saveRaceInfo(raceName, raceDate, raceGoal, programId) {
+  try {
+    const programRef = doc(fireDb, "programs", programId);
+    // Update race object in the Firestore document
+    await setDoc(programRef, {
+      race: {
+        race_name: raceName,
+        race_date: raceDate,
+        race_goal: raceGoal,
+      },
+    }, { merge: true });
+    console.log('Race info saved successfully.');
+  } catch (error) {
+    console.error("Error", error);
+  }
+}
+
+// Retrieve race info from Firestore
+export async function getRaceInfo(programId) {
+  try {
+    const programRef = doc(fireDb, "programs", programId);
+    const programDoc = await getDoc(programRef);
+    if (programDoc.exists()) {
+      return programDoc.data();
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting document: ", error);
+    return null;
+  }
+}
+
 // Retrieve program length data from Firestore
 export async function getProgramLength(programId) {
   try {
@@ -100,6 +136,7 @@ export async function saveProgramLength(programId, startDate, endDate) {
         end_date: endDate,
       },
     }, { merge: true });
+
 
     console.log("Program length updated successfully.");
   } catch (error) {

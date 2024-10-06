@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { saveProgramLength } from "../../../api";
 import { getProgramLength } from "../../../api";
+import { saveRaceInfo, getRaceInfo } from "../../../api";
 export default function RaceForm({
   programLength,
   setProgramLength,
@@ -12,11 +13,37 @@ export default function RaceForm({
   user,
   activeProgramId,
 }) {
+  const [raceName, setRaceName] = useState("");
   const [raceDate, setRaceDate] = useState("");
+  const [raceGoal, setRaceGoal] = useState("");
+  const [raceInfo, setRaceInfo] = useState(null);
   const [programDates, setProgramDates] = useState({
     start_date: "",
     end_date: "",
   });
+
+  useEffect(() => {
+    async function fetchRaceInfo() {
+      if (activeProgramId) {
+        const info = await getRaceInfo(activeProgramId);
+        console.log("Fetched Race Info:", info); // Debugging log
+        if (info) {
+          setRaceInfo(info.race);
+          setRaceName(info.race.race_name);
+          setRaceDate(info.race.race_date);
+          setRaceGoal(info.race.race_goal);
+        }
+      }
+    }
+
+    fetchRaceInfo();
+  }, [activeProgramId]);
+  console.log("RaceInfo:", raceInfo);
+  const handleSaveRaceInfo = async () => {
+    if (activeProgramId) {
+      await saveRaceInfo(raceName, raceDate, raceGoal, activeProgramId);
+    }
+  };
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -90,16 +117,32 @@ export default function RaceForm({
     <>
       <RaceInfo>
         <RaceLabel>Race </RaceLabel>
-        <RaceTitle placeholder="e.g. Tapei Half Marathon" />
+        <RaceTitle
+          placeholder="e.g. Tapei Half Marathon"
+          value={raceName}
+          onChange={(e) => setRaceName(e.target.value)}
+        />
         <RaceDate
           type="date"
           min={today}
           value={raceDate}
-          onChange={handleRaceDateChange}
+          onChange={(e) => setRaceDate(e.target.value)}
         />
-        <RaceGoal placeholder="e.g. 2:30" />
-        <SetButton>Set</SetButton>
+        <RaceGoal
+          placeholder="e.g. 2:30"
+          value={raceGoal}
+          onChange={(e) => setRaceGoal(e.target.value)}
+        />
+        <SetButton onClick={handleSaveRaceInfo}>Save race info</SetButton>
       </RaceInfo>
+      {raceInfo && (
+        <div>
+          <h3>Saved Race Info:</h3>
+          <p>Name: {raceInfo.race_name}</p>
+          <p>Date: {raceInfo.race_date}</p>
+          <p>Goal: {raceInfo.race_goal}</p>
+        </div>
+      )}
       <ProgramInfo>
         <ProgramLengthLabel>Program length </ProgramLengthLabel>
         <ProgramStart
