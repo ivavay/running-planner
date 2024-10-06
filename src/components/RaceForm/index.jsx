@@ -53,6 +53,11 @@ export default function RaceForm({
     }
   };
 
+  // Render the race name button upon setting race info
+  useEffect(() => {
+    console.log("Race Info Set:", raceInfo);
+  }, [raceInfo]);
+
   const today = new Date().toISOString().split("T")[0];
 
   // Use active program ID from local storage to fetch program dates

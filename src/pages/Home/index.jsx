@@ -91,7 +91,6 @@ export default function Home() {
       console.error("Error fetching programs:", error);
     }
   }
-  console.log("Programs:", programRaceInfo);
 
   function handleSignIn() {
     const provider = new GoogleAuthProvider();
@@ -119,6 +118,11 @@ export default function Home() {
       setEventsData(eventsData);
     });
   }
+
+  // Rerender the entire component when activeProgramId changes
+  useEffect(() => {
+    console.log("Active Program ID:", activeProgramId);
+  }, [activeProgramId]);
 
   return (
     <>
@@ -164,6 +168,7 @@ export default function Home() {
         raceGoal={raceGoal}
         raceName={raceName}
         raceInfo={raceInfo}
+        programRaceInfo={programRaceInfo}
       />
       <WeeklyDistance
         activeProgramId={activeProgramId}
