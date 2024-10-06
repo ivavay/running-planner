@@ -7,20 +7,21 @@ export default function WeeklyDistance({
   setWeeklyDistances,
   weeklyDistances,
   user,
+  activeProgramId,
 }) {
   const [currentDistance, setCurrentDistance] = useState("");
   const [selectedWeek, setSelectedWeek] = useState(1);
 
   useEffect(() => {
     async function loadWeeklyDistances() {
-      if (user && user.uid) {
-        const distances = await fetchWeeklyDistances(user.uid);
+      if (activeProgramId) {
+        const distances = await fetchWeeklyDistances(activeProgramId);
         setWeeklyDistances(distances);
       }
     }
 
     loadWeeklyDistances();
-  }, [user, setWeeklyDistances]);
+  }, [activeProgramId, setWeeklyDistances]);
 
   function addWeeklyDistance() {
     let distance = parseInt(currentDistance);
@@ -35,7 +36,7 @@ export default function WeeklyDistance({
 
     setWeeklyDistances(updatedDistances);
     setCurrentDistance("");
-    saveWeeklyDistances(updatedDistances, user.uid);
+    saveWeeklyDistances(updatedDistances, activeProgramId);
   }
   // Convert programLength to an array of weeks
   let weeksTotal = Array.from({ length: programLength }, (_, i) => i + 1);

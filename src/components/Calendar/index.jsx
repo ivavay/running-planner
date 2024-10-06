@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Event from "../Event";
 import { ProgressBar } from "../ProgressBar";
-import { saveEvent, deleteEvent, fetchData } from "../../../api";
+import { saveEvent, deleteEvent, fetchData, getProgramId } from "../../../api";
 
 export default function Calendar({
   setWeeklyDistances,
@@ -187,11 +187,13 @@ export default function Calendar({
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
-  const programId = "zuVE3akJV5YsHC3vuYIP";
+  // const programId = "zuVE3akJV5YsHC3vuYIP";
 
   async function handleCreateEvent() {
     if (selectedDay !== null) {
       try {
+        const programId = await getProgramId();
+        console.log("Program ID for created event: ", programId);
         const eventId = await saveEvent(eventInputs, programId);
         console.log("Saved event ID: ", eventId);
         setEventCreated((prevEvents) => {
@@ -245,6 +247,7 @@ export default function Calendar({
     if (selectedDay !== null) {
       e.preventDefault();
       try {
+        const programId = await getProgramId();
         await deleteEvent(eventInputs, programId);
         setEventModal(false);
         setEventInputs(initialEventInputs);
@@ -306,10 +309,6 @@ export default function Calendar({
           programStartDateFormatted.setHours(0, 0, 0, 0);
           programEndDateFormatted.setHours(0, 0, 0, 0);
 
-          // Check if current date is within the program start and end dates
-          if (currentDate > programEndDateFormatted) {
-            return <Day key={index} className="date-cell" />;
-          }
           // Calculate the difference in days between the program start date and the current date
           const diffInTime =
             currentDate.getTime() - programStartDateFormatted.getTime();
