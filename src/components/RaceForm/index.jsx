@@ -26,8 +26,11 @@ export default function RaceForm({
     async function fetchProgramDates() {
       if (activeProgramId) {
         const dates = await getProgramLength(activeProgramId);
+        console.log("Dates: ", dates);
         if (dates) {
           setProgramDates(dates);
+          setProgramStartDate(dates.start_date);
+          setProgramEndDate(dates.end_date);
         }
       }
     }
@@ -41,7 +44,11 @@ export default function RaceForm({
         saveProgramLength(activeProgramId, programStartDate, programEndDate);
       }
     }
-  }, [programStartDate, programEndDate, activeProgramId]);
+  }, [programStartDate, programEndDate]);
+
+  useEffect(() => {
+    calculateProgramWeeks();
+  }, [programStartDate, programEndDate]);
 
   function handleProgramStartChange(event) {
     setProgramStartDate(event.target.value);
