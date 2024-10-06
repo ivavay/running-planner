@@ -45,6 +45,11 @@ export default function RaceForm({
   const handleSaveRaceInfo = async () => {
     if (activeProgramId) {
       await saveRaceInfo(raceName, raceDate, raceGoal, activeProgramId);
+      setRaceInfo({
+        race_name: raceName,
+        race_date: raceDate,
+        race_goal: raceGoal,
+      });
     }
   };
 

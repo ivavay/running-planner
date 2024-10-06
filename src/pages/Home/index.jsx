@@ -10,7 +10,7 @@ import {
   signOut,
 } from "../../firebase";
 import { useEffect, useState } from "react";
-import { fetchEvents, createProgram } from "../../../api";
+import { fetchEvents, createProgram, getRaceInfo } from "../../../api";
 import styled from "styled-components";
 
 export default function Home() {
@@ -27,6 +27,7 @@ export default function Home() {
   const [raceDate, setRaceDate] = useState("");
   const [raceGoal, setRaceGoal] = useState("");
   const [raceInfo, setRaceInfo] = useState(null);
+  const [programRaceInfo, setProgramRaceInfo] = useState({});
 
   function handleCreateProgram() {
     createProgram(user.uid).then((newProgramId) => {
@@ -74,15 +75,23 @@ export default function Home() {
       );
       const querySnapshot = await getDocs(q);
       let programs = [];
-      querySnapshot.forEach((doc) => {
-        programs.push(doc.id);
-      });
+      let raceInfo = {};
+      for (const doc of querySnapshot.docs) {
+        const programId = doc.id;
+        programs.push(programId);
+        const raceData = await getRaceInfo(programId);
+        console.log("Race data:", raceData);
+        raceInfo[programId] = raceData
+          ? raceData.race.race_name
+          : "No Race Info";
+      }
       setPrograms(programs);
+      setProgramRaceInfo(raceInfo);
     } catch (error) {
       console.error("Error fetching programs:", error);
     }
   }
-  console.log("Programs:", programs);
+  console.log("Programs:", programRaceInfo);
 
   function handleSignIn() {
     const provider = new GoogleAuthProvider();
@@ -125,7 +134,7 @@ export default function Home() {
               {programs.map((programId) => (
                 <li key={programId}>
                   <button onClick={() => handleProgramSelect(programId)}>
-                    Program {programId}
+                    {programRaceInfo[programId]}
                   </button>
                 </li>
               ))}
