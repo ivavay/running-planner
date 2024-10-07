@@ -9,19 +9,10 @@ export default function Header() {
       </Link>
       <Navlinks>
         <NavItem>
-          <Link to="/badges">Badges</Link>
-        </NavItem>
-        <NavItem>
           <Link to="/activities">Activities</Link>
         </NavItem>
         <NavItem>
           <Link to="/recap">Recap</Link>
-        </NavItem>
-        <NavItem>
-          <Link to="/manage">Manage</Link>
-        </NavItem>
-        <NavItem>
-          <Link to="/login">Login</Link>
         </NavItem>
       </Navlinks>
     </Navbar>

@@ -98,12 +98,16 @@ export default function Home() {
       .then((result) => {
         // Handle successful sign-in
         console.log("User signed in:", result.user.displayName);
+        // Redirect to Strava OAuth page
+        const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=http://localhost:5173/authorize&scope=read,activity:read&approval_prompt=force`;
+        window.location.href = stravaOauthURL;
         // Add logged in user to firestore database if they don't already exist
         return addDoc(collection(fireDb, "users"), {
           name: result.user.displayName,
           email: result.user.email,
         });
       })
+
       .catch((error) => {
         // Handle errors
         console.error("Error signing in:", error);
@@ -111,6 +115,7 @@ export default function Home() {
     // Signout user
     signOut(fireAuth);
   }
+
   // Function to handle program selection
   function handleProgramSelect(programId) {
     setActiveProgramId(programId); // Set the selected program ID in state

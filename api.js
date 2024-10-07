@@ -4,7 +4,7 @@ import { collection, setDoc, getDoc, doc, addDoc, getDocs, where, query, deleteD
 
 const client_id = import.meta.env.VITE_STRAVA_CLIENT_ID;
 const client_secret = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
-const refresh_token = import.meta.env.VITE_STRAVA_REFRESH_TOKEN;
+
 
 // Fix this to fetch events from Firestore based on logged in user id
 // Events are stored in a collection called "events" under program document
@@ -252,6 +252,8 @@ export async function deleteEvent(eventInputs, programId) {
 }
 
 // Gets a new access token from Strava using refresh token
+const refresh_token = localStorage.getItem('strava_refresh_token'); 
+console.log('Refresh Token:', refresh_token);
 export async function fetchData() {
   const headers = {
     'Accept': 'application/json',
