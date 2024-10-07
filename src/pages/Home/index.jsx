@@ -92,6 +92,9 @@ export default function Home() {
     }
   }
 
+  // I want the url to be the current url of the page
+  const dynamicURL = window.location.href;
+  console.log("Dynamic URL:", dynamicURL);
   function handleSignIn() {
     const provider = new GoogleAuthProvider();
     signInWithPopup(fireAuth, provider)
@@ -99,7 +102,7 @@ export default function Home() {
         // Handle successful sign-in
         console.log("User signed in:", result.user.displayName);
         // Redirect to Strava OAuth page
-        const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=http://localhost:5173/authorize&scope=read,activity:read&approval_prompt=force`;
+        const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
         window.location.href = stravaOauthURL;
         // Add logged in user to firestore database if they don't already exist
         return addDoc(collection(fireDb, "users"), {
