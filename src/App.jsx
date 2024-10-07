@@ -6,6 +6,7 @@ import Recap from "./pages/Recap/index.jsx";
 import Activities from "./pages/Activities/index.jsx";
 import Manage from "./pages/Manage/index.jsx";
 import Login from "./pages/Login/index.jsx";
+import Authorize from "./pages/Authorize/index.jsx";
 import styled from "styled-components";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: "login",
         element: <Login />,
+      },
+      {
+        path: "authorize",
+        element: <Authorize />,
       },
     ],
   },
