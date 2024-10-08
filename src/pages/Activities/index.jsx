@@ -24,7 +24,7 @@ export default function Activities() {
         // Use polyline directly, no need to decode the polyline
         const mapURLs = fetchedData.map(
           (activity) =>
-            `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/path-2+0000FF-1(${encodeURIComponent(
+            `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/path-2+266fdd-1(${encodeURIComponent(
               activity.map.summary_polyline
             )})/auto/300x200?access_token=${
               import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
@@ -42,39 +42,72 @@ export default function Activities() {
 
   return (
     <>
-      <h1>Activities</h1>
       <div>
-        {data.map((activity, index) => {
-          const pacePerKm =
-            activity.moving_time / 60 / (activity.distance / 1000);
+        <CardGrid>
+          {data.map((activity, index) => {
+            const pacePerKm =
+              activity.moving_time / 60 / (activity.distance / 1000);
 
-          // Extract minutes and seconds
-          const paceMinutes = Math.floor(pacePerKm);
-          const paceSeconds = Math.round((pacePerKm - paceMinutes) * 60);
+            // Extract minutes and seconds
+            const paceMinutes = Math.floor(pacePerKm);
+            const paceSeconds = Math.round((pacePerKm - paceMinutes) * 60);
 
-          // Ensure seconds are two digits (e.g., 5 becomes 05)
-          const formattedPace = `${paceMinutes}:${paceSeconds
-            .toString()
-            .padStart(2, "0")}`;
+            // Ensure seconds are two digits (e.g., 5 becomes 05)
+            const formattedPace = `${paceMinutes}:${paceSeconds
+              .toString()
+              .padStart(2, "0")}`;
 
-          return (
-            <>
-              <div>
-                <div key={index}>
-                  <h2>
-                    {activity.name} -
-                    {new Date(activity.start_date_local).toLocaleDateString()}
-                  </h2>
-                  <p>{formattedPace} / km</p>
-                  <p>{(activity.distance / 1000).toFixed(2)} km</p>
-                  <p>{(activity.moving_time / 60).toFixed(0)} minutes</p>
-                  <img src={mapURLs[index]} alt={activity.name} />
+            return (
+              <>
+                <div>
+                  <Card>
+                    <div key={index}>
+                      <CardTitle>
+                        {new Date(
+                          activity.start_date_local
+                        ).toLocaleDateString()}{" "}
+                        -{activity.name}
+                      </CardTitle>
+                      <ActivityDetails>
+                        <p>{formattedPace} / km</p>
+                        <p>{(activity.distance / 1000).toFixed(2)} km</p>
+                        <p>{(activity.moving_time / 60).toFixed(0)} minutes</p>
+                      </ActivityDetails>
+                      <img src={mapURLs[index]} alt={activity.name} />
+                    </div>
+                  </Card>
                 </div>
-              </div>
-            </>
-          );
-        })}
+              </>
+            );
+          })}
+        </CardGrid>
       </div>
     </>
   );
 }
+
+const ActivityDetails = styled.div`
+  display: flex;
+  margin: 16px 0;
+  justify-content: space-between;
+`;
+const Card = styled.div`
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px;
+  width: 300px;
+  height: fit-content;
+  border-radius: 4px;
+`;
+const CardTitle = styled.h2`
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+`;
+
+const CardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+`;

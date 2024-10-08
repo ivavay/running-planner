@@ -12,6 +12,8 @@ import {
 import { useEffect, useState } from "react";
 import { fetchEvents, createProgram, getRaceInfo } from "../../../api";
 import styled from "styled-components";
+import promo1 from "../../assets/promo-1.png";
+import promo2 from "../../assets/promo-2.png";
 
 export default function Home() {
   const [weeklyDistances, setWeeklyDistances] = useState([]);
@@ -158,6 +160,12 @@ export default function Home() {
       ) : (
         <>{/* <Button onClick={handleSignIn}>Sign In with Google</Button> */}</>
       )}
+      {!user && (
+        <Images>
+          <PromoImage src={promo1}></PromoImage>
+          <PromoImage src={promo2}></PromoImage>
+        </Images>
+      )}
       {user && (
         <RaceForm
           activeProgramId={activeProgramId}
@@ -206,6 +214,17 @@ export default function Home() {
     </>
   );
 }
+
+const Images = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+const PromoImage = styled.img`
+  width: 75%;
+  height: auto;
+  margin: 16px 10px;
+`;
 
 const WelcomeHeader = styled.h1`
   color: #333;
