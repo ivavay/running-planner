@@ -88,11 +88,13 @@ const ProgressBarBlock = styled.div`
   width: 100%;
   height: 20px;
   border: 1px solid #ccc;
+  border-radius: 8px;
 `;
 const ProgressBarFill = styled.div`
-  background-color: lightblue;
+  background-color: #266fdd;
   width: 1%;
   height: 100%;
+  border-radius: 8px;
 `;
 const Distance = styled.div``;
 const WeeklyDistanceContainer = styled.div`
