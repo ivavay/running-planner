@@ -325,9 +325,9 @@ export default function Calendar({
               className="date-cell"
               onClick={() => handleOpenEventModal(index)}
               style={{
-                outline:
+                "border-bottom":
                   selectedWeek === weekNumber
-                    ? "3px solid lightblue"
+                    ? "6px solid #266fdd"
                     : "1px solid #ebebeb",
               }}
             >
@@ -392,10 +392,12 @@ export default function Calendar({
           onChange={(e) => handleEventNotesChange(e, "notes")}
           placeholder="Workout details here or any other notes"
         />
-        <EventSaveButton onClick={handleCreateEvent}>Save</EventSaveButton>
-        <EventDeleteButton onClick={handleDeleteEvent}>
-          Delete
-        </EventDeleteButton>
+        <ModalButtons>
+          <EventDeleteButton onClick={handleDeleteEvent}>
+            Delete
+          </EventDeleteButton>
+          <EventSaveButton onClick={handleCreateEvent}>Save</EventSaveButton>
+        </ModalButtons>
       </EventModalCard>
     </CalendarView>
   );
@@ -415,15 +417,25 @@ const DaysofWeek = styled.div`
 const Dates = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
+  gap: 8px;
+  margin-bottom: 16px;
 `;
-const WeekSelectionButton = styled.button``;
+const WeekSelectionButton = styled.button`
+  background-color: none;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
 const Day = styled.div`
   text-align: left;
-  font-size: 10px;
+  margin: 0;
+  font-size: 12px;
   width: 100%;
   height: 150px;
-  border: 1px solid #ccc;
+  border: 1px solid #e1e1e1;
+  padding: 4px;
   background-color: ${(props) => (props.isToday ? "lightblue" : "white")};
 `;
 const MonthNavigation = styled.div`
@@ -431,20 +443,28 @@ const MonthNavigation = styled.div`
   justify-content: space-between;
   align-items: center;
 `;
-const MonthButton = styled.button``;
+const MonthButton = styled.button`
+  background-color: none;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
 
 const EventModalCard = styled.div`
   ${(props) => (props.$eventModal ? "display: flex" : "display: none")};
-  background-color: aliceblue;
+  background-color: #e3f7ff;
   border: 1px solid #ccc;
   width: 400px;
   height: 300px;
   position: absolute;
   top: 40%;
   left: 35%;
-  padding: 8px;
+  padding: 16px;
   flex-direction: column;
   justify-content: center;
+  border-radius: 8px;
 `;
 const EventDistance = styled.input`
   width: 150px;
@@ -473,8 +493,12 @@ const EventType = styled.select`
 `;
 const EventTypeOption = styled.option``;
 const EventSaveButton = styled.button`
+  background-color: #266fdd;
   width: fit-content;
-  margin-top: 8px;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
 `;
 const KmSpan = styled.span`
   font-size: 12px;
@@ -489,9 +513,19 @@ const EventDate = styled.div`
   font-size: 12px;
 `;
 const EventDeleteButton = styled.button`
+  background-color: #fd6262;
   width: fit-content;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
 `;
 const WeeksTotalContainer = styled.div`
   display: flex;
   justify-content: center;
+`;
+const ModalButtons = styled.div`
+  display: flex;
+  margin-top: 16px;
+  justify-content: space-between;
 `;

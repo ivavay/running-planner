@@ -53,6 +53,7 @@ export default function Authorize() {
   return (
     <div>
       <h1>Authorize</h1>
+      <p>You have successfully connected to your Strava data!</p>
     </div>
   );
 }

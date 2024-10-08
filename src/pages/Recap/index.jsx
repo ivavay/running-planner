@@ -159,18 +159,23 @@ export default function Recap() {
   };
   return (
     <>
-      <h1>Monthly Recap Page</h1>
       <MonthNavigation>
         <MonthButton onClick={handlePrevMonth}>Prev</MonthButton>
         <Month>{`${monthNames[month]} ${year}`}</Month>
         <MonthButton onClick={handleNextMonth}>Next</MonthButton>
       </MonthNavigation>
       <Container>
-        <DataContainer>Fastest Run: {fastestRun} / km </DataContainer>
-        <DataContainer>Longest Run: {longestRun} km </DataContainer>
-        <DataContainer>Average Pace: {averagePace} / km </DataContainer>
         <DataContainer>
-          Monthly Total Distance: {monthlyTotalDistance} km
+          Fastest Run: <Number>{fastestRun} / km </Number>
+        </DataContainer>
+        <DataContainer>
+          Longest Run: <Number>{longestRun} km</Number>
+        </DataContainer>
+        <DataContainer>
+          Average Pace: <Number>{averagePace} / km </Number>
+        </DataContainer>
+        <DataContainer>
+          Total Distance: <Number>{monthlyTotalDistance} km</Number>
         </DataContainer>
       </Container>
       <ChartContainer>
@@ -189,18 +194,36 @@ export default function Recap() {
 
 const Month = styled.div`
   text-align: center;
+  font-size: 24px;
+  font-weight: bold;
   padding: 20px 0;
+  color: #266fdd;
 `;
 
+const Number = styled.span`
+  font-weight: bold;
+  color: #266fdd;
+`;
 const MonthNavigation = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
-const MonthButton = styled.button``;
+const MonthButton = styled.button`
+  background-color: none;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
 
 const DataContainer = styled.div`
   margin: 40px 12px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 200px;
 `;
 const Container = styled.div`
   display: flex;

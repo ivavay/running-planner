@@ -12,6 +12,8 @@ import {
 import { useEffect, useState } from "react";
 import { fetchEvents, createProgram, getRaceInfo } from "../../../api";
 import styled from "styled-components";
+import promo1 from "../../assets/promo-1.png";
+import promo2 from "../../assets/promo-2.png";
 
 export default function Home() {
   const [weeklyDistances, setWeeklyDistances] = useState([]);
@@ -93,31 +95,31 @@ export default function Home() {
   }
 
   // I want the url to be the current url of the page
-  const dynamicURL = window.location.href;
-  console.log("Dynamic URL:", dynamicURL);
-  function handleSignIn() {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(fireAuth, provider)
-      .then((result) => {
-        // Handle successful sign-in
-        console.log("User signed in:", result.user.displayName);
-        // Redirect to Strava OAuth page
-        const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
-        window.location.href = stravaOauthURL;
-        // Add logged in user to firestore database if they don't already exist
-        return addDoc(collection(fireDb, "users"), {
-          name: result.user.displayName,
-          email: result.user.email,
-        });
-      })
+  // const dynamicURL = window.location.href;
+  // console.log("Dynamic URL:", dynamicURL);
+  // function handleSignIn() {
+  //   const provider = new GoogleAuthProvider();
+  //   signInWithPopup(fireAuth, provider)
+  //     .then((result) => {
+  //       // Handle successful sign-in
+  //       console.log("User signed in:", result.user.displayName);
+  //       // Redirect to Strava OAuth page
+  //       const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
+  //       window.location.href = stravaOauthURL;
+  //       // Add logged in user to firestore database if they don't already exist
+  //       return addDoc(collection(fireDb, "users"), {
+  //         name: result.user.displayName,
+  //         email: result.user.email,
+  //       });
+  //     })
 
-      .catch((error) => {
-        // Handle errors
-        console.error("Error signing in:", error);
-      });
-    // Signout user
-    signOut(fireAuth);
-  }
+  //     .catch((error) => {
+  //       // Handle errors
+  //       console.error("Error signing in:", error);
+  //     });
+  //   // Signout user
+  //   signOut(fireAuth);
+  // }
 
   // Function to handle program selection
   function handleProgramSelect(programId) {
@@ -134,58 +136,67 @@ export default function Home() {
 
   return (
     <>
-      {fireAuth.currentUser ? (
+      {user ? (
         <div>
-          <h1>Welcome, {fireAuth.currentUser.displayName}</h1>
-
-          <Button onClick={() => signOut(fireAuth)}>Sign Out</Button>
-          <button onClick={handleCreateProgram}>Create new program</button>
-          <div>
-            <h2>Select Program</h2>
+          <WelcomeHeader>Welcome, {user.displayName}</WelcomeHeader>
+          <CreateProgramBtn onClick={handleCreateProgram}>
+            Create new program
+          </CreateProgramBtn>
+          <ProgramsContainer>
             <ul>
               {programs.map((programId) => (
                 <li key={programId}>
-                  <button onClick={() => handleProgramSelect(programId)}>
+                  <ProgramButton
+                    onClick={() => handleProgramSelect(programId)}
+                    active={activeProgramId === programId}
+                  >
                     {programRaceInfo[programId]}
-                  </button>
+                  </ProgramButton>
                 </li>
               ))}
             </ul>
-          </div>
+          </ProgramsContainer>
         </div>
       ) : (
-        <>
-          <Button onClick={handleSignIn}>Sign In with Google</Button>
-        </>
+        <>{/* <Button onClick={handleSignIn}>Sign In with Google</Button> */}</>
+      )}
+      {!user && (
+        <Images>
+          <PromoImage src={promo1}></PromoImage>
+          <PromoImage src={promo2}></PromoImage>
+        </Images>
+      )}
+      {user && (
+        <RaceForm
+          activeProgramId={activeProgramId}
+          programLength={programLength}
+          setProgramLength={setProgramLength}
+          programStartDate={programStartDate}
+          setProgramStartDate={setProgramStartDate}
+          setProgramEndDate={setProgramEndDate}
+          programEndDate={programEndDate}
+          user={user}
+          setRaceDate={setRaceDate}
+          setRaceGoal={setRaceGoal}
+          setRaceName={setRaceName}
+          setRaceInfo={setRaceInfo}
+          raceDate={raceDate}
+          raceGoal={raceGoal}
+          raceName={raceName}
+          raceInfo={raceInfo}
+          programRaceInfo={programRaceInfo}
+        />
+      )}
+      {user && (
+        <WeeklyDistance
+          activeProgramId={activeProgramId}
+          user={user}
+          programLength={programLength}
+          weeklyDistances={weeklyDistances}
+          setWeeklyDistances={setWeeklyDistances}
+        />
       )}
 
-      <RaceForm
-        activeProgramId={activeProgramId}
-        programLength={programLength}
-        setProgramLength={setProgramLength}
-        programStartDate={programStartDate}
-        setProgramStartDate={setProgramStartDate}
-        setProgramEndDate={setProgramEndDate}
-        programEndDate={programEndDate}
-        user={user}
-        setRaceDate={setRaceDate}
-        setRaceGoal={setRaceGoal}
-        setRaceName={setRaceName}
-        setRaceInfo={setRaceInfo}
-        raceDate={raceDate}
-        raceGoal={raceGoal}
-        raceName={raceName}
-        raceInfo={raceInfo}
-        programRaceInfo={programRaceInfo}
-      />
-      <WeeklyDistance
-        activeProgramId={activeProgramId}
-        user={user}
-        programLength={programLength}
-        weeklyDistances={weeklyDistances}
-        setWeeklyDistances={setWeeklyDistances}
-      />
-      {console.log("User ", user)}
       {user && (
         <Calendar
           activeProgramId={activeProgramId}
@@ -204,4 +215,50 @@ export default function Home() {
   );
 }
 
-const Button = styled.button``;
+const Images = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+const PromoImage = styled.img`
+  width: 75%;
+  height: auto;
+  margin: 16px 10px;
+`;
+
+const WelcomeHeader = styled.h1`
+  color: #333;
+  padding: 24px 0;
+`;
+const CreateProgramBtn = styled.button`
+  background-color: #333;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+`;
+const ProgramsContainer = styled.div`
+  margin-top: 16px;
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    justify-content: flex-start;
+  }
+  li {
+    margin-bottom: 8px;
+    margin-right: 16px;
+  }
+`;
+const ProgramButton = styled.button`
+  background-color: ${(props) => (props.active ? "#808080" : "#f0f0f0")};
+  color: ${(props) => (props.active ? "#fff" : "#333")};
+  border-radius: 4px;
+  padding: 10px 20px;
+  margin: 5px;
+  &:hover {
+    background-color: ${(props) => (props.active ? "#808080" : "#ddd")};
+  }
+`;
