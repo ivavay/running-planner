@@ -149,15 +149,17 @@ export default function RaceForm({
         <SetButton onClick={handleSaveRaceInfo}>Save race info</SetButton>
       </RaceInfo>
       {raceInfo && (
-        <div>
-          <h3>Saved Race Info:</h3>
+        <SavedRaceInfo>
+          <p>
+            <i>Saved Race Info:</i>
+          </p>
           <p>Name: {raceInfo.race_name}</p>
           <p>Date: {raceInfo.race_date}</p>
           <p>Goal: {raceInfo.race_goal}</p>
-        </div>
+        </SavedRaceInfo>
       )}
       <ProgramInfo>
-        <ProgramLengthLabel>Program length </ProgramLengthLabel>
+        <ProgramLengthLabel>Training Program Length </ProgramLengthLabel>
         <ProgramStart
           type="date"
           value={programStartDate}
@@ -170,22 +172,79 @@ export default function RaceForm({
         ></ProgramEnd>
         <SetButton onClick={calculateProgramWeeks}>Set</SetButton>
       </ProgramInfo>
-      <ProgramWeeksTotal>{`Total weeks: ` + programLength}</ProgramWeeksTotal>
-      <h2>Program Dates</h2>
-      <p>Start Date: {programStartDate}</p>
-      <p>End Date: {programEndDate}</p>
+      <ProgramWeeksTotal>
+        {`Total weeks for training program: ` + programLength}
+      </ProgramWeeksTotal>
+      <ProgramDates>
+        <p>
+          <strong>Training Program Datess</strong>
+        </p>
+        <p>Start Date: {programStartDate}</p>
+        <p>End Date: {programEndDate}</p>
+      </ProgramDates>
     </>
   );
 }
 
-const RaceInfo = styled.div``;
-const RaceDate = styled.input``;
-const RaceGoal = styled.input``;
-const SetButton = styled.button``;
-const RaceLabel = styled.label``;
-const RaceTitle = styled.input``;
-const ProgramInfo = styled.div``;
-const ProgramStart = styled.input``;
-const ProgramEnd = styled.input``;
+const RaceInfo = styled.div`
+  display: flex;
+`;
+const RaceDate = styled.input`
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
+const RaceGoal = styled.input`
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
+const SetButton = styled.button`
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+`;
+const RaceLabel = styled.label`
+  margin-right: 8px;
+`;
+const RaceTitle = styled.input`
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
+const ProgramInfo = styled.div`
+  margin-top: 16px;
+`;
+
+const ProgramStart = styled.input`
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
+const ProgramEnd = styled.input`
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
 const ProgramLengthLabel = styled.label``;
-const ProgramWeeksTotal = styled.div``;
+const ProgramWeeksTotal = styled.div`
+  font-weight: 500;
+  margin-top: 16px;
+  width: fit-content;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 16px;
+`;
+const SavedRaceInfo = styled.div`
+  margin-top: 16px;
+`;
+const ProgramDates = styled.div`
+  margin-top: 16px;
+`;

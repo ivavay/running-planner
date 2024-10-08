@@ -47,8 +47,10 @@ export default function WeeklyDistance({
 
   return (
     <>
-      <h2>Weekly Distance</h2>
       <WeeklyDistanceContainer>
+        <p>
+          <strong>Set Weekly Distance Goals</strong>
+        </p>
         <WeeklyDropdown
           value={selectedWeek}
           onChange={(event) => setSelectedWeek(parseInt(event.target.value))}
@@ -78,10 +80,32 @@ export default function WeeklyDistance({
   );
 }
 
-const WeeklyDistanceContainer = styled.div``;
-const WeeklyDropdown = styled.select``;
-const WeekOption = styled.option``;
-const WeeklyDistanceInput = styled.input``;
-const WeeklyDistanceButtoon = styled.button``;
-const DistancesContainer = styled.div``;
+const WeeklyDistanceContainer = styled.div`
+  margin-top: 24px;
+`;
+const WeeklyDropdown = styled.select`
+  margin-top: 8px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  margin-right: 8px;
+`;
+const WeekOption = styled.option`
+  padding: 4px;
+`;
+const WeeklyDistanceInput = styled.input`
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+`;
+const WeeklyDistanceButtoon = styled.button`
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+`;
+const DistancesContainer = styled.div`
+  margin-top: 16px;
+`;
 const Distance = styled.div``;
