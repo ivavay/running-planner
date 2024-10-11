@@ -133,11 +133,6 @@ export default function Home() {
     });
   }
 
-  // Rerender the entire component when activeProgramId changes
-  useEffect(() => {
-    console.log("Active Program ID:", activeProgramId);
-  }, [activeProgramId]);
-
   return (
     <>
       {user ? (
@@ -147,7 +142,7 @@ export default function Home() {
             Create new program
           </CreateProgramBtn>
           <ProgramsContainer>
-            <h3>Select existing programs</h3>
+            <h3>Select existing program</h3>
             <ul>
               {programs.map((programId) => (
                 <li key={programId}>
@@ -193,6 +188,7 @@ export default function Home() {
           programRaceInfo={programRaceInfo}
           programCreated={programCreated}
           setProgramCreated={setProgramCreated}
+          programs={programs}
         />
       )}
       {user && (
@@ -248,6 +244,7 @@ const CreateProgramBtn = styled.button`
 `;
 const ProgramsContainer = styled.div`
   margin-top: 16px;
+  margin-bottom: 80px;
 
   ul {
     list-style-type: none;

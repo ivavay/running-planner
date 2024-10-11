@@ -26,6 +26,7 @@ export default function RaceForm({
   handleCreateProgram,
   programCreated,
   setProgramCreated,
+  programs,
 }) {
   const [programDates, setProgramDates] = useState({
     start_date: "",
@@ -33,19 +34,28 @@ export default function RaceForm({
   });
 
   const steps = ["Step 1 - Race Info", "Step 2 - Training Program Length"];
-
+  const [edit, setEdit] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    // If it is the last step, set edit to false
+    if (activeStep === steps.length - 1) {
+      setEdit(false);
+    }
   };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    // If it is the last step, set edit to false
+    if (activeStep === steps.length - 1) {
+      setEdit(false);
+    }
   };
 
   const handleReset = () => {
     setActiveStep(0);
+    setEdit(true);
   };
 
   useEffect(() => {
@@ -193,16 +203,6 @@ export default function RaceForm({
               ></ProgramEnd>
               <SetButton onClick={calculateProgramWeeks}>Set</SetButton>
             </ProgramInfo>
-            <ProgramWeeksTotal>
-              {`Total weeks for training program: ` + programLength}
-            </ProgramWeeksTotal>
-            <ProgramDates>
-              <p>
-                <strong>Training Program Dates</strong>
-              </p>
-              <p>Start Date: {programStartDate}</p>
-              <p>End Date: {programEndDate}</p>
-            </ProgramDates>
           </>
         );
       }
@@ -211,7 +211,7 @@ export default function RaceForm({
   console.log("handleCreateProgram:", handleCreateProgram);
   return (
     <>
-      {programCreated && (
+      {(edit || programCreated) && (
         <Stepper activeStep={activeStep}>
           {steps.map((label, index) => (
             <Step key={index}>
@@ -221,7 +221,7 @@ export default function RaceForm({
                     color: activeStep === index ? "#333" : "gray",
                   },
                   "& .MuiStepIcon-root": {
-                    color: activeStep === index ? "black" : "gray",
+                    color: activeStep === index ? "#333" : "gray",
                   },
                 }}
               >
@@ -231,15 +231,22 @@ export default function RaceForm({
           ))}
         </Stepper>
       )}
-      {activeStep === steps.length ? (
+      {activeProgramId && (
         <div>
-          <Typography>All steps completed</Typography>
-          <Button onClick={handleReset}>Reset</Button>
-        </div>
-      ) : (
-        <div>
-          {programCreated && getStepContent(activeStep)}
-          {programCreated && (
+          {programLength > 0 && (
+            <Button
+              sx={{
+                backgroundColor: "#333",
+                color: "white",
+                marginTop: "16px",
+              }}
+              onClick={handleReset}
+            >
+              Edit
+            </Button>
+          )}
+          {edit && getStepContent(activeStep)}
+          {edit && (
             <>
               <Button
                 disabled={activeStep === 0}
@@ -263,41 +270,59 @@ export default function RaceForm({
           )}
         </div>
       )}
+      <Container>
+        {raceInfo && (
+          <SavedRaceInfo>
+            <p>
+              <strong>Race Info</strong>
+            </p>
+            <br></br>
+            <p>Name: {raceInfo.race_name}</p>
+            <p>Date: {raceInfo.race_date}</p>
+            <p>Time Goal: {raceInfo.race_goal}</p>
+          </SavedRaceInfo>
+        )}
 
-      {raceInfo && (
-        <SavedRaceInfo>
-          <p>
-            <i>Saved Race Info:</i>
-          </p>
-          <p>Name: {raceInfo.race_name}</p>
-          <p>Date: {raceInfo.race_date}</p>
-          <p>Goal: {raceInfo.race_goal}</p>
-        </SavedRaceInfo>
-      )}
-
-      {
-        // If program length is not NaN, display the program length and dates. If NaN, display nothing
-        !isNaN(programLength) && programLength > 0 && (
-          <>
-            <ProgramWeeksTotal>
-              {`Total weeks for training program: ` + programLength}
-            </ProgramWeeksTotal>
-            <ProgramDates>
-              <p>
-                <strong>Training Program Dates</strong>
-              </p>
-              <p>Start Date: {programStartDate}</p>
-              <p>End Date: {programEndDate}</p>
-            </ProgramDates>
-          </>
-        )
-      }
+        {
+          // If program length is not NaN, display the program length and dates. If NaN, display nothing
+          !isNaN(programLength) && programLength > 0 && (
+            <>
+              <ProgramWeeksTotal>
+                Total weeks for training program{" "}
+                <TotalWeeks>{programLength}</TotalWeeks>
+              </ProgramWeeksTotal>
+              <ProgramDates>
+                <p>
+                  <strong>Training Program Schedule</strong>
+                </p>
+                <br></br>
+                <p>Start Date: {programStartDate}</p>
+                <p>End Date: {programEndDate}</p>
+              </ProgramDates>
+            </>
+          )
+        }
+      </Container>
     </>
   );
 }
-
+const TotalWeeks = styled.h3`
+  color: #333;
+  font-size: 72px;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+const Container = styled.div`
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
 const RaceInfo = styled.div`
   display: flex;
+  margin-top: 24px;
 `;
 const RaceDate = styled.input`
   border: 1px solid #ccc;
@@ -347,14 +372,30 @@ const ProgramLengthLabel = styled.label``;
 const ProgramWeeksTotal = styled.div`
   font-weight: 500;
   margin-top: 16px;
-  width: fit-content;
+
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 8px 16px;
+  width: 20%;
+  height: 150px;
 `;
 const SavedRaceInfo = styled.div`
+  font-weight: 500;
   margin-top: 16px;
+
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  width: 20%;
+  height: 150px;
 `;
 const ProgramDates = styled.div`
   margin-top: 16px;
+  font-weight: 500;
+  width: 20%;
+  height: 150px;
+
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
 `;

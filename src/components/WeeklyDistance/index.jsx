@@ -47,7 +47,7 @@ export default function WeeklyDistance({
 
   return (
     <>
-      {activeProgramId && (
+      {!isNaN(programLength) && programLength > 0 && (
         <>
           <WeeklyDistanceContainer>
             <p>
