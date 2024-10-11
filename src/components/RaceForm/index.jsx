@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { saveProgramLength } from "../../../api";
 import { getProgramLength } from "../../../api";
 import { saveRaceInfo, getRaceInfo } from "../../../api";
+import { Stepper, Step, StepLabel, Button, Typography } from "@mui/material";
+import { set } from "date-fns";
+
 export default function RaceForm({
   programLength,
   setProgramLength,
@@ -20,11 +23,30 @@ export default function RaceForm({
   raceName,
   raceDate,
   raceGoal,
+  handleCreateProgram,
+  programCreated,
+  setProgramCreated,
 }) {
   const [programDates, setProgramDates] = useState({
     start_date: "",
     end_date: "",
   });
+
+  const steps = ["Step 1 - Race Info", "Step 2 - Training Program Length"];
+
+  const [activeStep, setActiveStep] = useState(0);
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleReset = () => {
+    setActiveStep(0);
+  };
 
   useEffect(() => {
     async function fetchRaceInfo() {
@@ -126,28 +148,122 @@ export default function RaceForm({
     console.log("Race date " + raceDate);
   }
 
+  function getStepContent(step) {
+    switch (step) {
+      case 0: {
+        return (
+          <RaceInfo>
+            <RaceLabel>Race Name </RaceLabel>
+            <RaceTitle
+              placeholder="e.g. Tapei Half Marathon"
+              value={raceName}
+              onChange={(e) => setRaceName(e.target.value)}
+            />
+            <RaceLabel>Race Date </RaceLabel>
+            <RaceDate
+              type="date"
+              min={today}
+              value={raceDate}
+              onChange={(e) => setRaceDate(e.target.value)}
+            />
+            <RaceLabel>Race Time Goal</RaceLabel>
+            <RaceGoal
+              placeholder="e.g. 2:30"
+              value={raceGoal}
+              onChange={(e) => setRaceGoal(e.target.value)}
+            />
+            <SetButton onClick={handleSaveRaceInfo}>Save race info</SetButton>
+          </RaceInfo>
+        );
+      }
+      case 1: {
+        return (
+          <>
+            <ProgramInfo>
+              <ProgramLengthLabel>Training Program Length </ProgramLengthLabel>
+              <ProgramStart
+                type="date"
+                value={programStartDate}
+                onChange={handleProgramStartChange}
+              ></ProgramStart>
+              <ProgramEnd
+                type="date"
+                value={programEndDate}
+                onChange={handleProgramEndChange}
+              ></ProgramEnd>
+              <SetButton onClick={calculateProgramWeeks}>Set</SetButton>
+            </ProgramInfo>
+            <ProgramWeeksTotal>
+              {`Total weeks for training program: ` + programLength}
+            </ProgramWeeksTotal>
+            <ProgramDates>
+              <p>
+                <strong>Training Program Dates</strong>
+              </p>
+              <p>Start Date: {programStartDate}</p>
+              <p>End Date: {programEndDate}</p>
+            </ProgramDates>
+          </>
+        );
+      }
+    }
+  }
+  console.log("handleCreateProgram:", handleCreateProgram);
   return (
     <>
-      <RaceInfo>
-        <RaceLabel>Race </RaceLabel>
-        <RaceTitle
-          placeholder="e.g. Tapei Half Marathon"
-          value={raceName}
-          onChange={(e) => setRaceName(e.target.value)}
-        />
-        <RaceDate
-          type="date"
-          min={today}
-          value={raceDate}
-          onChange={(e) => setRaceDate(e.target.value)}
-        />
-        <RaceGoal
-          placeholder="e.g. 2:30"
-          value={raceGoal}
-          onChange={(e) => setRaceGoal(e.target.value)}
-        />
-        <SetButton onClick={handleSaveRaceInfo}>Save race info</SetButton>
-      </RaceInfo>
+      {programCreated && (
+        <Stepper activeStep={activeStep}>
+          {steps.map((label, index) => (
+            <Step key={index}>
+              <StepLabel
+                sx={{
+                  "& .MuiStepLabel-label": {
+                    color: activeStep === index ? "#333" : "gray",
+                  },
+                  "& .MuiStepIcon-root": {
+                    color: activeStep === index ? "black" : "gray",
+                  },
+                }}
+              >
+                {label}
+              </StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      )}
+      {activeStep === steps.length ? (
+        <div>
+          <Typography>All steps completed</Typography>
+          <Button onClick={handleReset}>Reset</Button>
+        </div>
+      ) : (
+        <div>
+          {programCreated && getStepContent(activeStep)}
+          {programCreated && (
+            <>
+              <Button
+                disabled={activeStep === 0}
+                sx={{ color: "grey", marginTop: "16px" }}
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#333",
+                  color: "white",
+                  marginTop: "16px",
+                }}
+                onClick={handleNext}
+              >
+                {activeStep === steps.length - 1 ? "Finish" : "Next"}
+              </Button>{" "}
+            </>
+          )}
+        </div>
+      )}
+
       {raceInfo && (
         <SavedRaceInfo>
           <p>
@@ -158,30 +274,20 @@ export default function RaceForm({
           <p>Goal: {raceInfo.race_goal}</p>
         </SavedRaceInfo>
       )}
-      <ProgramInfo>
-        <ProgramLengthLabel>Training Program Length </ProgramLengthLabel>
-        <ProgramStart
-          type="date"
-          value={programStartDate}
-          onChange={handleProgramStartChange}
-        ></ProgramStart>
-        <ProgramEnd
-          type="date"
-          value={programEndDate}
-          onChange={handleProgramEndChange}
-        ></ProgramEnd>
-        <SetButton onClick={calculateProgramWeeks}>Set</SetButton>
-      </ProgramInfo>
-      <ProgramWeeksTotal>
-        {`Total weeks for training program: ` + programLength}
-      </ProgramWeeksTotal>
-      <ProgramDates>
-        <p>
-          <strong>Training Program Datess</strong>
-        </p>
-        <p>Start Date: {programStartDate}</p>
-        <p>End Date: {programEndDate}</p>
-      </ProgramDates>
+      {programLength === "NaN" && (
+        <>
+          <ProgramWeeksTotal>
+            {`Total weeks for training program: ` + programLength}
+          </ProgramWeeksTotal>
+          <ProgramDates>
+            <p>
+              <strong>Training Program Dates</strong>
+            </p>
+            <p>Start Date: {programStartDate}</p>
+            <p>End Date: {programEndDate}</p>
+          </ProgramDates>
+        </>
+      )}
     </>
   );
 }

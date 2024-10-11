@@ -47,35 +47,41 @@ export default function WeeklyDistance({
 
   return (
     <>
-      <WeeklyDistanceContainer>
-        <p>
-          <strong>Set Weekly Distance Goals</strong>
-        </p>
-        <WeeklyDropdown
-          value={selectedWeek}
-          onChange={(event) => setSelectedWeek(parseInt(event.target.value))}
-        >
-          {weeksTotal.map((week, index) => (
-            <WeekOption key={index} value={week}>
-              Week {week}
-            </WeekOption>
-          ))}
-        </WeeklyDropdown>
-        <WeeklyDistanceInput
-          value={currentDistance}
-          onChange={(event) => setCurrentDistance(event.target.value)}
-        ></WeeklyDistanceInput>
-        <WeeklyDistanceButtoon onClick={addWeeklyDistance}>
-          Set
-        </WeeklyDistanceButtoon>
-      </WeeklyDistanceContainer>
-      <DistancesContainer>
-        {weeklyDistances.map((distance, index) => (
-          <Distance key={index}>
-            Week {index + 1} Goal: {distance} km
-          </Distance>
-        ))}
-      </DistancesContainer>
+      {activeProgramId && (
+        <>
+          <WeeklyDistanceContainer>
+            <p>
+              <strong>Set Weekly Distance Goals</strong>
+            </p>
+            <WeeklyDropdown
+              value={selectedWeek}
+              onChange={(event) =>
+                setSelectedWeek(parseInt(event.target.value))
+              }
+            >
+              {weeksTotal.map((week, index) => (
+                <WeekOption key={index} value={week}>
+                  Week {week}
+                </WeekOption>
+              ))}
+            </WeeklyDropdown>
+            <WeeklyDistanceInput
+              value={currentDistance}
+              onChange={(event) => setCurrentDistance(event.target.value)}
+            ></WeeklyDistanceInput>
+            <WeeklyDistanceButtoon onClick={addWeeklyDistance}>
+              Set
+            </WeeklyDistanceButtoon>
+          </WeeklyDistanceContainer>
+          <DistancesContainer>
+            {weeklyDistances.map((distance, index) => (
+              <Distance key={index}>
+                Week {index + 1} Goal: {distance} km
+              </Distance>
+            ))}
+          </DistancesContainer>
+        </>
+      )}
     </>
   );
 }

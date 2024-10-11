@@ -14,6 +14,7 @@ import { fetchEvents, createProgram, getRaceInfo } from "../../../api";
 import styled from "styled-components";
 import promo1 from "../../assets/promo-1.png";
 import promo2 from "../../assets/promo-2.png";
+import { set } from "date-fns";
 
 export default function Home() {
   const [weeklyDistances, setWeeklyDistances] = useState([]);
@@ -30,6 +31,7 @@ export default function Home() {
   const [raceGoal, setRaceGoal] = useState("");
   const [raceInfo, setRaceInfo] = useState(null);
   const [programRaceInfo, setProgramRaceInfo] = useState({});
+  const [programCreated, setProgramCreated] = useState(false);
 
   function handleCreateProgram() {
     createProgram(user.uid).then((newProgramId) => {
@@ -47,6 +49,8 @@ export default function Home() {
       fetchEvents(newProgramId).then((eventsData) => {
         setEventsData(eventsData);
       });
+      // set programCreated to true
+      setProgramCreated(true);
     });
   }
 
@@ -168,6 +172,7 @@ export default function Home() {
       )}
       {user && (
         <RaceForm
+          handleCreateProgram={handleCreateProgram}
           activeProgramId={activeProgramId}
           programLength={programLength}
           setProgramLength={setProgramLength}
@@ -185,6 +190,8 @@ export default function Home() {
           raceName={raceName}
           raceInfo={raceInfo}
           programRaceInfo={programRaceInfo}
+          programCreated={programCreated}
+          setProgramCreated={setProgramCreated}
         />
       )}
       {user && (
