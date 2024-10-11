@@ -249,7 +249,8 @@ export default function Calendar({
     if (selectedDay !== null) {
       e.preventDefault();
       try {
-        // const programId = await getProgramId();
+        // If event is in firestore, you can delete it
+
         await deleteEvent(eventInputs, activeProgramId);
         setEventModal(false);
         setEventInputs(initialEventInputs);
@@ -393,9 +394,16 @@ export default function Calendar({
           placeholder="Workout details here or any other notes"
         />
         <ModalButtons>
-          <EventDeleteButton onClick={handleDeleteEvent}>
-            Delete
-          </EventDeleteButton>
+          <EventBtnContainer>
+            {eventInputs.id && (
+              <EventDeleteButton onClick={handleDeleteEvent}>
+                Delete
+              </EventDeleteButton>
+            )}
+            <EventCancelButton onClick={() => setEventModal(false)}>
+              Cancel
+            </EventCancelButton>
+          </EventBtnContainer>
           <EventSaveButton onClick={handleCreateEvent}>Save</EventSaveButton>
         </ModalButtons>
       </EventModalCard>
@@ -519,6 +527,20 @@ const EventDeleteButton = styled.button`
   border: none;
   padding: 4px 8px;
   border-radius: 4px;
+  margin-right: 8px;
+`;
+const EventCancelButton = styled.div`
+  background-color: gray;
+  width: fit-content;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+`;
+const EventBtnContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
 `;
 const WeeksTotalContainer = styled.div`
   display: flex;
