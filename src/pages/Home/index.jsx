@@ -263,12 +263,9 @@ const ProgramsContainer = styled.div`
   }
 `;
 const ProgramButton = styled.button`
-  background-color: ${(props) => (props.active ? "#808080" : "#f0f0f0")};
+  background-color: ${(props) => (props.active ? "#333" : "#f0f0f0")};
   color: ${(props) => (props.active ? "#fff" : "#333")};
   border-radius: 4px;
   padding: 10px 20px;
   margin: 5px;
-  &:hover {
-    background-color: ${(props) => (props.active ? "#808080" : "#ddd")};
-  }
 `;

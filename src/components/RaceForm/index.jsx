@@ -279,7 +279,7 @@ export default function RaceForm({
             <br></br>
             <p>Name: {raceInfo.race_name}</p>
             <p>Date: {raceInfo.race_date}</p>
-            <p>Time Goal: {raceInfo.race_goal}</p>
+            <p>Time Goal: {raceInfo.race_goal} hours</p>
           </SavedRaceInfo>
         )}
 
@@ -372,29 +372,29 @@ const ProgramLengthLabel = styled.label``;
 const ProgramWeeksTotal = styled.div`
   font-weight: 500;
   margin-top: 16px;
-
+  box-shadow: 0 0 5px rgba(89, 97, 216, 0.3);
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 8px 16px;
-  width: 20%;
+  width: 25%;
   height: 150px;
 `;
 const SavedRaceInfo = styled.div`
   font-weight: 500;
   margin-top: 16px;
-
+  box-shadow: 0 0 5px rgba(89, 97, 216, 0.3);
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
-  width: 20%;
+  width: 25%;
   height: 150px;
 `;
 const ProgramDates = styled.div`
   margin-top: 16px;
   font-weight: 500;
-  width: 20%;
+  width: 25%;
   height: 150px;
-
+  box-shadow: 0 0 5px rgba(89, 97, 216, 0.3);
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;

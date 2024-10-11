@@ -436,7 +436,7 @@ const Day = styled.div`
   height: 150px;
   border: 1px solid #e1e1e1;
   padding: 4px;
-  background-color: ${(props) => (props.isToday ? "lightblue" : "white")};
+  background-color: ${(props) => (props.isToday ? "lightblue" : "#ffffff")};
 `;
 const MonthNavigation = styled.div`
   display: flex;
@@ -454,8 +454,8 @@ const MonthButton = styled.button`
 
 const EventModalCard = styled.div`
   ${(props) => (props.$eventModal ? "display: flex" : "display: none")};
-  background-color: #e3f7ff;
-  border: 1px solid #ccc;
+  background-color: #ffffff;
+  border: 3px solid #333;
   width: 400px;
   height: 300px;
   position: absolute;
@@ -493,7 +493,7 @@ const EventType = styled.select`
 `;
 const EventTypeOption = styled.option``;
 const EventSaveButton = styled.button`
-  background-color: #266fdd;
+  background-color: #4a5bff;
   width: fit-content;
   color: white;
   border: none;
