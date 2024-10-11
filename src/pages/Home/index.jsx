@@ -14,7 +14,9 @@ import { fetchEvents, createProgram, getRaceInfo } from "../../../api";
 import styled from "styled-components";
 import promo1 from "../../assets/promo-1.png";
 import promo2 from "../../assets/promo-2.png";
+import StravaLogo from "../../assets/strava-logo.png";
 import { set } from "date-fns";
+import { Copyright } from "lucide-react";
 
 export default function Home() {
   const [weeklyDistances, setWeeklyDistances] = useState([]);
@@ -215,10 +217,23 @@ export default function Home() {
           setWeeklyDistances={setWeeklyDistances}
         />
       )}
+      <Footer>
+        <FooterLogo src={StravaLogo} alt="Strava Logo" />
+      </Footer>
     </>
   );
 }
 
+const FooterLogo = styled.img`
+  width: 250px;
+  height: auto;
+  margin: 16px;
+`;
+const Footer = styled.footer`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+`;
 const Images = styled.div`
   display: flex;
   flex-direction: column;
