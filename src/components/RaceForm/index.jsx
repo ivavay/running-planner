@@ -274,20 +274,24 @@ export default function RaceForm({
           <p>Goal: {raceInfo.race_goal}</p>
         </SavedRaceInfo>
       )}
-      {programLength === "NaN" && (
-        <>
-          <ProgramWeeksTotal>
-            {`Total weeks for training program: ` + programLength}
-          </ProgramWeeksTotal>
-          <ProgramDates>
-            <p>
-              <strong>Training Program Dates</strong>
-            </p>
-            <p>Start Date: {programStartDate}</p>
-            <p>End Date: {programEndDate}</p>
-          </ProgramDates>
-        </>
-      )}
+
+      {
+        // If program length is not NaN, display the program length and dates. If NaN, display nothing
+        !isNaN(programLength) && programLength > 0 && (
+          <>
+            <ProgramWeeksTotal>
+              {`Total weeks for training program: ` + programLength}
+            </ProgramWeeksTotal>
+            <ProgramDates>
+              <p>
+                <strong>Training Program Dates</strong>
+              </p>
+              <p>Start Date: {programStartDate}</p>
+              <p>End Date: {programEndDate}</p>
+            </ProgramDates>
+          </>
+        )
+      }
     </>
   );
 }

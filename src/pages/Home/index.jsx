@@ -147,6 +147,7 @@ export default function Home() {
             Create new program
           </CreateProgramBtn>
           <ProgramsContainer>
+            <h3>Select existing programs</h3>
             <ul>
               {programs.map((programId) => (
                 <li key={programId}>
@@ -257,6 +258,11 @@ const ProgramsContainer = styled.div`
   li {
     margin-bottom: 8px;
     margin-right: 16px;
+  }
+
+  h3 {
+    margin-top: 40px;
+    color: #333;
   }
 `;
 const ProgramButton = styled.button`
