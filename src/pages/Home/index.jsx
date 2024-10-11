@@ -225,7 +225,7 @@ export default function Home() {
 }
 
 const FooterLogo = styled.img`
-  width: 250px;
+  width: 200px;
   height: auto;
   margin: 16px;
 `;

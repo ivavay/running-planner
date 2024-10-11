@@ -21,6 +21,7 @@ export default function Calendar({
   const [eventCreated, setEventCreated] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
   const initialEventInputs = {
+    title: "",
     date: "",
     distance: "",
     effort: "",
@@ -31,6 +32,7 @@ export default function Calendar({
   const [selectedWeek, setSelectedWeek] = useState(null);
   const [firebaseEvents, setFirebaseEvents] = useState([]);
   const [stravaEvents, setStravaEvents] = useState([]);
+  const [validationError, setValidationError] = useState("");
 
   // Set the states for firebase and strava events
   useEffect(() => {
@@ -190,30 +192,37 @@ export default function Calendar({
 
   // const programId = "zuVE3akJV5YsHC3vuYIP";
 
+  // If event inputs are not all filled out, disable the save button
   async function handleCreateEvent() {
     if (selectedDay !== null) {
       try {
         console.log("Program ID for created event: ", activeProgramId);
         if (activeProgramId) {
-          const eventId = await saveEvent(eventInputs, activeProgramId);
-          setEventCreated((prevEvents) => {
-            const newEvents = { ...prevEvents };
-            const date = eventInputs.date;
-            if (!newEvents[date]) {
-              newEvents[date] = [];
-            }
-            if (eventId) {
-              const existingEventIndex = newEvents[date].findIndex(
-                (event) => event.id === eventId
-              );
-              if (existingEventIndex !== -1) {
-                newEvents[date][existingEventIndex] = eventInputs;
-              } else {
-                newEvents[date].push({ ...eventInputs, id: eventId });
+          if (eventInputs.title !== "") {
+            const eventId = await saveEvent(eventInputs, activeProgramId);
+
+            setEventCreated((prevEvents) => {
+              const newEvents = { ...prevEvents };
+              const date = eventInputs.date;
+              if (!newEvents[date]) {
+                newEvents[date] = [];
               }
-            }
-            return newEvents;
-          });
+              if (eventId) {
+                const existingEventIndex = newEvents[date].findIndex(
+                  (event) => event.id === eventId
+                );
+                if (existingEventIndex !== -1) {
+                  newEvents[date][existingEventIndex] = eventInputs;
+                } else {
+                  newEvents[date].push({ ...eventInputs, id: eventId });
+                }
+              }
+              return newEvents;
+            });
+          } else {
+            console.error("Title cannot be blank upon saving.");
+            setValidationError("Title needs to be filled out");
+          }
         }
 
         setEventModal(false);
@@ -225,11 +234,11 @@ export default function Calendar({
       }
     }
   }
-  function handleEventTitleChange(event) {
-    setEventInputs((prevInputs) => ({
-      ...prevInputs,
-      title: event.target.value,
-    }));
+  function handleEventTitleChange(event, field) {
+    setEventInputs({
+      ...eventInputs,
+      [field]: event.target.value,
+    });
   }
   function handleEventDistanceChange(event, field) {
     setEventInputs({ ...eventInputs, [field]: parseFloat(event.target.value) });
@@ -359,6 +368,11 @@ export default function Calendar({
           value={eventInputs.title || ""}
           onChange={(e) => handleEventTitleChange(e, "title")}
         />
+        {eventInputs.title === "" && validationError && (
+          <p style={{ color: "red", fontSize: "12px", margin: "4px 0" }}>
+            {validationError}
+          </p>
+        )}
         <EventDate>Date in local string format: {eventInputs.date} </EventDate>
         <EventDistanceContainer>
           <EventDistance
@@ -412,6 +426,11 @@ export default function Calendar({
 }
 
 const CalendarView = styled.div``;
+const ErrorMessage = styled.div`
+  color: red;
+  font-size: 12px;
+  margin: 4px 0;
+`;
 const Month = styled.div`
   text-align: center;
   padding: 20px 0;
