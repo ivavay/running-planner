@@ -190,8 +190,11 @@ export default function Calendar({
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
-  // const programId = "zuVE3akJV5YsHC3vuYIP";
-
+  // const progr
+  // render validation error message if title is blank
+  useEffect(() => {
+    console.log("Validation error: ", validationError);
+  }, [validationError]);
   // If event inputs are not all filled out, disable the save button
   async function handleCreateEvent() {
     if (selectedDay !== null) {
@@ -219,14 +222,14 @@ export default function Calendar({
               }
               return newEvents;
             });
+            setEventModal(false);
+            setEventInputs(initialEventInputs);
           } else {
             console.error("Title cannot be blank upon saving.");
             setValidationError("Title needs to be filled out");
           }
         }
 
-        setEventModal(false);
-        setEventInputs(initialEventInputs);
         console.log("Event ID after state update: ", eventId);
         console.log("Event created: ", eventCreated);
       } catch (error) {
