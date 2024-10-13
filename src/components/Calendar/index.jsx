@@ -21,6 +21,7 @@ export default function Calendar({
   const [eventCreated, setEventCreated] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
   const initialEventInputs = {
+    title: "",
     date: "",
     distance: "",
     effort: "",
@@ -31,6 +32,7 @@ export default function Calendar({
   const [selectedWeek, setSelectedWeek] = useState(null);
   const [firebaseEvents, setFirebaseEvents] = useState([]);
   const [stravaEvents, setStravaEvents] = useState([]);
+  const [validationError, setValidationError] = useState("");
 
   // Set the states for firebase and strava events
   useEffect(() => {
@@ -188,36 +190,46 @@ export default function Calendar({
     console.log("Event modal is " + eventModal);
   }, [eventModal]);
 
-  // const programId = "zuVE3akJV5YsHC3vuYIP";
-
+  // const progr
+  // render validation error message if title is blank
+  useEffect(() => {
+    console.log("Validation error: ", validationError);
+  }, [validationError]);
+  // If event inputs are not all filled out, disable the save button
   async function handleCreateEvent() {
     if (selectedDay !== null) {
       try {
         console.log("Program ID for created event: ", activeProgramId);
         if (activeProgramId) {
-          const eventId = await saveEvent(eventInputs, activeProgramId);
-          setEventCreated((prevEvents) => {
-            const newEvents = { ...prevEvents };
-            const date = eventInputs.date;
-            if (!newEvents[date]) {
-              newEvents[date] = [];
-            }
-            if (eventId) {
-              const existingEventIndex = newEvents[date].findIndex(
-                (event) => event.id === eventId
-              );
-              if (existingEventIndex !== -1) {
-                newEvents[date][existingEventIndex] = eventInputs;
-              } else {
-                newEvents[date].push({ ...eventInputs, id: eventId });
+          if (eventInputs.title !== "") {
+            const eventId = await saveEvent(eventInputs, activeProgramId);
+
+            setEventCreated((prevEvents) => {
+              const newEvents = { ...prevEvents };
+              const date = eventInputs.date;
+              if (!newEvents[date]) {
+                newEvents[date] = [];
               }
-            }
-            return newEvents;
-          });
+              if (eventId) {
+                const existingEventIndex = newEvents[date].findIndex(
+                  (event) => event.id === eventId
+                );
+                if (existingEventIndex !== -1) {
+                  newEvents[date][existingEventIndex] = eventInputs;
+                } else {
+                  newEvents[date].push({ ...eventInputs, id: eventId });
+                }
+              }
+              return newEvents;
+            });
+            setEventModal(false);
+            setEventInputs(initialEventInputs);
+          } else {
+            console.error("Title cannot be blank upon saving.");
+            setValidationError("Title needs to be filled out");
+          }
         }
 
-        setEventModal(false);
-        setEventInputs(initialEventInputs);
         console.log("Event ID after state update: ", eventId);
         console.log("Event created: ", eventCreated);
       } catch (error) {
@@ -225,11 +237,11 @@ export default function Calendar({
       }
     }
   }
-  function handleEventTitleChange(event) {
-    setEventInputs((prevInputs) => ({
-      ...prevInputs,
-      title: event.target.value,
-    }));
+  function handleEventTitleChange(event, field) {
+    setEventInputs({
+      ...eventInputs,
+      [field]: event.target.value,
+    });
   }
   function handleEventDistanceChange(event, field) {
     setEventInputs({ ...eventInputs, [field]: parseFloat(event.target.value) });
@@ -249,7 +261,8 @@ export default function Calendar({
     if (selectedDay !== null) {
       e.preventDefault();
       try {
-        // const programId = await getProgramId();
+        // If event is in firestore, you can delete it
+
         await deleteEvent(eventInputs, activeProgramId);
         setEventModal(false);
         setEventInputs(initialEventInputs);
@@ -358,6 +371,11 @@ export default function Calendar({
           value={eventInputs.title || ""}
           onChange={(e) => handleEventTitleChange(e, "title")}
         />
+        {eventInputs.title === "" && validationError && (
+          <p style={{ color: "red", fontSize: "12px", margin: "4px 0" }}>
+            {validationError}
+          </p>
+        )}
         <EventDate>Date in local string format: {eventInputs.date} </EventDate>
         <EventDistanceContainer>
           <EventDistance
@@ -393,9 +411,16 @@ export default function Calendar({
           placeholder="Workout details here or any other notes"
         />
         <ModalButtons>
-          <EventDeleteButton onClick={handleDeleteEvent}>
-            Delete
-          </EventDeleteButton>
+          <EventBtnContainer>
+            {eventInputs.id && (
+              <EventDeleteButton onClick={handleDeleteEvent}>
+                Delete
+              </EventDeleteButton>
+            )}
+            <EventCancelButton onClick={() => setEventModal(false)}>
+              Cancel
+            </EventCancelButton>
+          </EventBtnContainer>
           <EventSaveButton onClick={handleCreateEvent}>Save</EventSaveButton>
         </ModalButtons>
       </EventModalCard>
@@ -404,6 +429,11 @@ export default function Calendar({
 }
 
 const CalendarView = styled.div``;
+const ErrorMessage = styled.div`
+  color: red;
+  font-size: 12px;
+  margin: 4px 0;
+`;
 const Month = styled.div`
   text-align: center;
   padding: 20px 0;
@@ -436,7 +466,7 @@ const Day = styled.div`
   height: 150px;
   border: 1px solid #e1e1e1;
   padding: 4px;
-  background-color: ${(props) => (props.isToday ? "lightblue" : "white")};
+  background-color: ${(props) => (props.isToday ? "lightblue" : "#ffffff")};
 `;
 const MonthNavigation = styled.div`
   display: flex;
@@ -454,8 +484,8 @@ const MonthButton = styled.button`
 
 const EventModalCard = styled.div`
   ${(props) => (props.$eventModal ? "display: flex" : "display: none")};
-  background-color: #e3f7ff;
-  border: 1px solid #ccc;
+  background-color: #ffffff;
+  border: 3px solid #333;
   width: 400px;
   height: 300px;
   position: absolute;
@@ -493,7 +523,7 @@ const EventType = styled.select`
 `;
 const EventTypeOption = styled.option``;
 const EventSaveButton = styled.button`
-  background-color: #266fdd;
+  background-color: #4a5bff;
   width: fit-content;
   color: white;
   border: none;
@@ -519,6 +549,20 @@ const EventDeleteButton = styled.button`
   border: none;
   padding: 4px 8px;
   border-radius: 4px;
+  margin-right: 8px;
+`;
+const EventCancelButton = styled.div`
+  background-color: gray;
+  width: fit-content;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+`;
+const EventBtnContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
 `;
 const WeeksTotalContainer = styled.div`
   display: flex;

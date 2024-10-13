@@ -9,6 +9,7 @@ body {
   font-family: "Poppins", system-ui;
   font-weight: 400;
   font-style: normal;
+  background-color: #f6f6f6;
 } 
 /* @layer base {
   :root {

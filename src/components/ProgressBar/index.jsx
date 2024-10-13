@@ -91,7 +91,7 @@ const ProgressBarBlock = styled.div`
   border-radius: 8px;
 `;
 const ProgressBarFill = styled.div`
-  background-color: #266fdd;
+  background-color: #4a5bff;
   width: 1%;
   height: 100%;
   border-radius: 8px;
