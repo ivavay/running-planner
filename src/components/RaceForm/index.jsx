@@ -39,18 +39,14 @@ export default function RaceForm({
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    // If it is the last step, set edit to false
     if (activeStep === steps.length - 1) {
+      setProgramCreated(false);
       setEdit(false);
     }
   };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    // If it is the last step, set edit to false
-    if (activeStep === steps.length - 1) {
-      setEdit(false);
-    }
   };
 
   const handleReset = () => {
@@ -245,8 +241,8 @@ export default function RaceForm({
               Edit
             </Button>
           )}
-          {edit && getStepContent(activeStep)}
-          {edit && (
+          {(edit || programCreated) && getStepContent(activeStep)}
+          {(edit || programCreated) && (
             <>
               <Button
                 disabled={activeStep === 0}
