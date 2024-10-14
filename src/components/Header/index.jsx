@@ -9,6 +9,7 @@ import {
   signInWithPopup,
   signOut,
 } from "../../firebase";
+import StravaConnect from "../../assets/connect_strava.png";
 
 export default function Header() {
   const dynamicURL = window.location.href;
@@ -37,9 +38,7 @@ export default function Header() {
 
       // Handle successful sign-in
       console.log("User signed in:", result.user.displayName);
-      // Redirect to Strava OAuth page
-      const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
-      window.location.href = stravaOauthURL;
+
       // Check if user exists in database. If not, then add user to firestore
       const userQuery = query(
         collection(fireDb, "users"),
@@ -76,6 +75,12 @@ export default function Header() {
   // Is user currently signed in
   console.log("User:", user);
 
+  // Redirect to Strava OAuth page
+  function redirectToStravaOauth() {
+    const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
+    window.location.href = stravaOauthURL;
+  }
+
   return (
     <Navbar>
       <NavLink to="/">
@@ -93,7 +98,14 @@ export default function Header() {
           </>
         ) : null}
         {user ? (
-          <NavItem onClick={handleSignOut}>Log Out</NavItem>
+          <>
+            <NavItem onClick={handleSignOut}>Log Out</NavItem>
+            <NavItem>
+              <StravaButton onClick={redirectToStravaOauth}>
+                <img src={StravaConnect}></img>
+              </StravaButton>
+            </NavItem>
+          </>
         ) : (
           <NavItem onClick={handleSignIn}>Log in</NavItem>
         )}
@@ -101,6 +113,8 @@ export default function Header() {
     </Navbar>
   );
 }
+
+const StravaButton = styled.div``;
 const NavLink = styled(Link)`
   text-decoration: none;
   color: #333;
@@ -117,6 +131,7 @@ const Navbar = styled.nav`
 const Navlinks = styled.div`
   display: flex;
   justify-content: end;
+  align-items: center;
 `;
 const NavItem = styled.div`
   margin-right: 24px;

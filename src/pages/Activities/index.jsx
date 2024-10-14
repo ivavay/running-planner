@@ -32,7 +32,6 @@ export default function Activities() {
             }`
         );
         setMapURLs(mapURLs);
-        console.log("Map URLs: ", mapURLs);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -68,12 +67,6 @@ export default function Activities() {
               const minutes = Math.floor(movingTime / 60);
               movingTime = `${minutes}m`;
             }
-
-            console.log(
-              `https://www.strava.com/activities/${activity.map.id
-                .split("a")
-                .filter(Boolean)}`
-            );
             return (
               <>
                 <div>
