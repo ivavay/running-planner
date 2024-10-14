@@ -57,6 +57,16 @@ export default function Activities() {
               .toString()
               .padStart(2, "0")}`;
 
+            // If activity moving time is over an hour, then convert to hour and minutes, otherwise, just show minutes
+            let movingTime = activity.moving_time;
+            if (movingTime > 3600) {
+              const hours = Math.floor(movingTime / 3600);
+              const minutes = Math.floor((movingTime % 3600) / 60);
+              movingTime = `${hours}h ${minutes}m`;
+            } else {
+              const minutes = Math.floor(movingTime / 60);
+              movingTime = `${minutes}m`;
+            }
             return (
               <>
                 <div>
@@ -71,7 +81,7 @@ export default function Activities() {
                       <ActivityDetails>
                         <p>{formattedPace} / km</p>
                         <p>{(activity.distance / 1000).toFixed(2)} km</p>
-                        <p>{(activity.moving_time / 60).toFixed(0)} minutes</p>
+                        <p>{movingTime}</p>
                       </ActivityDetails>
                       <img src={mapURLs[index]} alt={activity.name} />
                     </div>
