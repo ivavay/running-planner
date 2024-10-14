@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, where, query, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   fireDb,
@@ -9,6 +9,7 @@ import {
   signInWithPopup,
   signOut,
 } from "../../firebase";
+import StravaConnect from "../../assets/connect_strava.png";
 
 export default function Header() {
   const dynamicURL = window.location.href;
@@ -29,26 +30,35 @@ export default function Header() {
     return () => unsubscribe();
   }, []);
 
-  function handleSignIn() {
+  async function handleSignIn() {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(fireAuth, provider)
-      .then((result) => {
-        // Handle successful sign-in
-        console.log("User signed in:", result.user.displayName);
-        // Redirect to Strava OAuth page
-        const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
-        window.location.href = stravaOauthURL;
-        // Check if user exists in database. If not, then add user to firestore
-        return addDoc(collection(fireDb, "users"), {
-          name: result.user.displayName,
-          email: result.user.email,
-        });
-      })
+    try {
+      const result = await signInWithPopup(fireAuth, provider);
+      const user = result.user;
 
-      .catch((error) => {
-        // Handle errors
-        console.error("Error signing in:", error);
-      });
+      // Handle successful sign-in
+      console.log("User signed in:", result.user.displayName);
+
+      // Check if user exists in database. If not, then add user to firestore
+      const userQuery = query(
+        collection(fireDb, "users"),
+        where("email", "==", user.email)
+      );
+      const querySnapshot = await getDocs(userQuery);
+
+      if (querySnapshot.empty) {
+        // User does not exist, add to Firestore
+        await addDoc(collection(fireDb, "users"), {
+          name: user.displayName,
+          email: user.email,
+        });
+      } else {
+        console.log("User already exists in database, therefore not added");
+      }
+    } catch (error) {
+      // Handle errors
+      console.error("Error signing in:", error);
+    }
   }
 
   function handleSignOut() {
@@ -65,20 +75,37 @@ export default function Header() {
   // Is user currently signed in
   console.log("User:", user);
 
+  // Redirect to Strava OAuth page
+  function redirectToStravaOauth() {
+    const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
+    window.location.href = stravaOauthURL;
+  }
+
   return (
     <Navbar>
       <NavLink to="/">
         <Logo>Running Planner</Logo>
       </NavLink>
       <Navlinks>
-        <NavItem>
-          <NavLink to="/activities">Activities</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to="/recap">Recap</NavLink>
-        </NavItem>
         {user ? (
-          <NavItem onClick={handleSignOut}>Log Out</NavItem>
+          <>
+            <NavItem>
+              <NavLink to="/activities">Activities</NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to="/recap">Recap</NavLink>
+            </NavItem>
+          </>
+        ) : null}
+        {user ? (
+          <>
+            <NavItem onClick={handleSignOut}>Log Out</NavItem>
+            <NavItem>
+              <StravaButton onClick={redirectToStravaOauth}>
+                <img src={StravaConnect}></img>
+              </StravaButton>
+            </NavItem>
+          </>
         ) : (
           <NavItem onClick={handleSignIn}>Log in</NavItem>
         )}
@@ -86,6 +113,8 @@ export default function Header() {
     </Navbar>
   );
 }
+
+const StravaButton = styled.div``;
 const NavLink = styled(Link)`
   text-decoration: none;
   color: #333;
@@ -102,6 +131,7 @@ const Navbar = styled.nav`
 const Navlinks = styled.div`
   display: flex;
   justify-content: end;
+  align-items: center;
 `;
 const NavItem = styled.div`
   margin-right: 24px;

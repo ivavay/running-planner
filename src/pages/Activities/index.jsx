@@ -4,6 +4,7 @@ import polyline from "@mapbox/polyline";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import styled from "styled-components";
+import placeholder from "../../assets/placeholder.png";
 
 export default function Activities() {
   const [data, setData] = useState([]);
@@ -31,7 +32,6 @@ export default function Activities() {
             }`
         );
         setMapURLs(mapURLs);
-        console.log("Map URLs: ", mapURLs);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -57,6 +57,16 @@ export default function Activities() {
               .toString()
               .padStart(2, "0")}`;
 
+            // If activity moving time is over an hour, then convert to hour and minutes, otherwise, just show minutes
+            let movingTime = activity.moving_time;
+            if (movingTime > 3600) {
+              const hours = Math.floor(movingTime / 3600);
+              const minutes = Math.floor((movingTime % 3600) / 60);
+              movingTime = `${hours}h ${minutes}m`;
+            } else {
+              const minutes = Math.floor(movingTime / 60);
+              movingTime = `${minutes}m`;
+            }
             return (
               <>
                 <div>
@@ -71,9 +81,27 @@ export default function Activities() {
                       <ActivityDetails>
                         <p>{formattedPace} / km</p>
                         <p>{(activity.distance / 1000).toFixed(2)} km</p>
-                        <p>{(activity.moving_time / 60).toFixed(0)} minutes</p>
+                        <p>{movingTime}</p>
                       </ActivityDetails>
-                      <img src={mapURLs[index]} alt={activity.name} />
+                      <img
+                        src={mapURLs[index]}
+                        alt={activity.name}
+                        onError={(e) => {
+                          e.target.src = placeholder; // Set the placeholder image on error
+                        }}
+                        style={{
+                          objectFit: "contain",
+                          width: "300px",
+                        }}
+                      />
+                      <StravaLink
+                        onTarget="_blank"
+                        href={`https://www.strava.com/activities/${activity.map.id
+                          .split("a")
+                          .filter(Boolean)}`}
+                      >
+                        See activity on Strava
+                      </StravaLink>
                     </div>
                   </Card>
                 </div>
@@ -86,6 +114,15 @@ export default function Activities() {
   );
 }
 
+const StravaLink = styled.a`
+  color: #fc4c02;
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 3px solid #fc4c02;
+  font-size: 10px;
+  margin-top: 8px;
+  display: inline-block;
+`;
 const ActivityDetails = styled.div`
   display: flex;
   margin: 16px 0;

@@ -101,7 +101,7 @@ export default function Calendar({
 
   // Get number of days in each month
   function getDaysInMonth(month, year) {
-    return new Date(year, month, 0).getDate();
+    return new Date(year, month + 1, 0).getDate();
   }
 
   const month = currentDate.getMonth();
@@ -334,6 +334,7 @@ export default function Calendar({
 
           return (
             <Day
+              isToday={day === +todayDate}
               key={index}
               className="date-cell"
               onClick={() => handleOpenEventModal(index)}
@@ -460,13 +461,15 @@ const WeekSelectionButton = styled.button`
 `;
 const Day = styled.div`
   text-align: left;
+  text-decoration: ${(props) =>
+    props.isToday ? "#4a5bff underline 5px" : "none"};
   margin: 0;
   font-size: 12px;
   width: 100%;
   height: 150px;
   border: 1px solid #e1e1e1;
   padding: 4px;
-  background-color: ${(props) => (props.isToday ? "lightblue" : "#ffffff")};
+  background-color: white;
 `;
 const MonthNavigation = styled.div`
   display: flex;
