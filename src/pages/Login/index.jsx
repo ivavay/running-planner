@@ -34,11 +34,15 @@ export default function Login() {
       .then((result) => {
         // Handle successful sign-in
         console.log("User signed in:", result.user.displayName);
-        // Add logged in user to firestore database if they don't already exist
-        return addDoc(collection(fireDb, "users"), {
-          name: result.user.displayName,
-          email: result.user.email,
-        });
+        // Add logged in user to firestore database only if they don't exist
+        if (!user) {
+          return addDoc(collection(fireDb, "users"), {
+            name: result.user.displayName,
+            email: result.user.email,
+          });
+        } else {
+          console.log("User already exists in database, therefore not added");
+        }
       })
       .catch((error) => {
         // Handle errors

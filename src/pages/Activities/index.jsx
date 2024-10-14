@@ -128,7 +128,6 @@ const StravaLink = styled.a`
   border-bottom: 3px solid #fc4c02;
   font-size: 10px;
   margin-top: 8px;
-
   display: inline-block;
 `;
 const ActivityDetails = styled.div`

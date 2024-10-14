@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, where, query, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   fireDb,
@@ -29,26 +29,37 @@ export default function Header() {
     return () => unsubscribe();
   }, []);
 
-  function handleSignIn() {
+  async function handleSignIn() {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(fireAuth, provider)
-      .then((result) => {
-        // Handle successful sign-in
-        console.log("User signed in:", result.user.displayName);
-        // Redirect to Strava OAuth page
-        const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
-        window.location.href = stravaOauthURL;
-        // Check if user exists in database. If not, then add user to firestore
-        return addDoc(collection(fireDb, "users"), {
-          name: result.user.displayName,
-          email: result.user.email,
-        });
-      })
+    try {
+      const result = await signInWithPopup(fireAuth, provider);
+      const user = result.user;
 
-      .catch((error) => {
-        // Handle errors
-        console.error("Error signing in:", error);
-      });
+      // Handle successful sign-in
+      console.log("User signed in:", result.user.displayName);
+      // Redirect to Strava OAuth page
+      const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
+      window.location.href = stravaOauthURL;
+      // Check if user exists in database. If not, then add user to firestore
+      const userQuery = query(
+        collection(fireDb, "users"),
+        where("email", "==", user.email)
+      );
+      const querySnapshot = await getDocs(userQuery);
+
+      if (querySnapshot.empty) {
+        // User does not exist, add to Firestore
+        await addDoc(collection(fireDb, "users"), {
+          name: user.displayName,
+          email: user.email,
+        });
+      } else {
+        console.log("User already exists in database, therefore not added");
+      }
+    } catch (error) {
+      // Handle errors
+      console.error("Error signing in:", error);
+    }
   }
 
   function handleSignOut() {
