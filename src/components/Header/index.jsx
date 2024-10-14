@@ -9,7 +9,7 @@ import {
   signInWithPopup,
   signOut,
 } from "../../firebase";
-import StravaConnect from "../../assets/connect_strava.png";
+import StravaConnect from "../../assets/strava_connect.png";
 
 export default function Header() {
   const dynamicURL = window.location.href;
@@ -102,7 +102,7 @@ export default function Header() {
             <NavItem onClick={handleSignOut}>Log Out</NavItem>
             <NavItem>
               <StravaButton onClick={redirectToStravaOauth}>
-                <img src={StravaConnect}></img>
+                <StravaImg src={StravaConnect}></StravaImg>
               </StravaButton>
             </NavItem>
           </>
@@ -114,7 +114,14 @@ export default function Header() {
   );
 }
 
-const StravaButton = styled.div``;
+const StravaImg = styled.img`
+  height: 48px;
+`;
+const StravaButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+`;
 const NavLink = styled(Link)`
   text-decoration: none;
   color: #333;
