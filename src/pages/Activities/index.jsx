@@ -68,6 +68,12 @@ export default function Activities() {
               const minutes = Math.floor(movingTime / 60);
               movingTime = `${minutes}m`;
             }
+
+            console.log(
+              `https://www.strava.com/activities/${activity.map.id
+                .split("a")
+                .filter(Boolean)}`
+            );
             return (
               <>
                 <div>
@@ -95,6 +101,14 @@ export default function Activities() {
                           width: "300px",
                         }}
                       />
+                      <StravaLink
+                        onTarget="_blank"
+                        href={`https://www.strava.com/activities/${activity.map.id
+                          .split("a")
+                          .filter(Boolean)}`}
+                      >
+                        See activity on Strava
+                      </StravaLink>
                     </div>
                   </Card>
                 </div>
@@ -107,6 +121,16 @@ export default function Activities() {
   );
 }
 
+const StravaLink = styled.a`
+  color: #fc4c02;
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 3px solid #fc4c02;
+  font-size: 10px;
+  margin-top: 8px;
+
+  display: inline-block;
+`;
 const ActivityDetails = styled.div`
   display: flex;
   margin: 16px 0;
