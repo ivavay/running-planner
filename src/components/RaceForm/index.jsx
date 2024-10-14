@@ -201,7 +201,7 @@ export default function RaceForm({
                 value={programEndDate}
                 onChange={handleProgramEndChange}
               ></ProgramEnd>
-              <SetButton onClick={calculateProgramWeeks}>Set</SetButton>
+              {/* <SetButton onClick={calculateProgramWeeks}>Set</SetButton> */}
             </ProgramInfo>
           </>
         );

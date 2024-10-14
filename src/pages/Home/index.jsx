@@ -143,6 +143,7 @@ export default function Home() {
         console.error("Error deleting program: ", error);
       });
   }
+
   return (
     <>
       {user ? (
