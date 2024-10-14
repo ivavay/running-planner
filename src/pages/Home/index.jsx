@@ -1,7 +1,15 @@
 import Calendar from "../../components/Calendar";
 import RaceForm from "../../components/RaceForm";
 import WeeklyDistance from "../../components/WeeklyDistance";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+} from "firebase/firestore";
 import {
   fireDb,
   fireAuth,
@@ -34,6 +42,7 @@ export default function Home() {
   const [raceInfo, setRaceInfo] = useState(null);
   const [programRaceInfo, setProgramRaceInfo] = useState({});
   const [programCreated, setProgramCreated] = useState(false);
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false);
 
   function handleCreateProgram() {
     createProgram(user.uid).then((newProgramId) => {
@@ -108,6 +117,32 @@ export default function Home() {
     });
   }
 
+  // Function to delete program from firebase
+  function handleDeleteProgram(programId) {
+    console.log("Deleting program:", programId);
+    // Delete program from firestore
+    const programRef = doc(fireDb, "programs", programId);
+    // Delete the document
+    setConfirmDeleteModal(true);
+    deleteDoc(programRef)
+      .then(() => {
+        console.log("Program deleted successfully");
+        // Remove program from programs state
+        setPrograms((prevPrograms) =>
+          prevPrograms.filter((program) => program.id !== programId)
+        );
+        // Remove program from programRaceInfo state
+        const updatedProgramRaceInfo = { ...programRaceInfo };
+        delete updatedProgramRaceInfo[programId];
+        setProgramRaceInfo(updatedProgramRaceInfo);
+        // Reset active program ID
+        setActiveProgramId(null);
+        setConfirmDeleteModal(false);
+      })
+      .catch((error) => {
+        console.error("Error deleting program: ", error);
+      });
+  }
   return (
     <>
       {user ? (
@@ -141,8 +176,23 @@ export default function Home() {
           <PromoImage src={promo2}></PromoImage>
         </Images>
       )}
+      {user && confirmDeleteModal && (
+        <DeleteModal>
+          <h3>Are you sure you want to delete this program?</h3>
+          <ButtonOptions>
+            <button onClick={() => setConfirmDeleteModal(false)}>Cancel</button>
+            <button
+              className="delete"
+              onClick={() => handleDeleteProgram(activeProgramId)}
+            >
+              Confirm Delete
+            </button>
+          </ButtonOptions>
+        </DeleteModal>
+      )}
       {user && (
         <RaceForm
+          setConfirmDeleteModal={setConfirmDeleteModal}
           handleCreateProgram={handleCreateProgram}
           activeProgramId={activeProgramId}
           programLength={programLength}
@@ -197,6 +247,38 @@ export default function Home() {
   );
 }
 
+const ButtonOptions = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+`;
+
+const DeleteModal = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  button {
+    background-color: #333;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    margin-top: 24px;
+  }
+  button.delete {
+    background-color: #ff3939;
+  }
+`;
 const FooterLogo = styled.img`
   width: 200px;
   height: auto;

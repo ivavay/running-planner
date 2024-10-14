@@ -27,6 +27,7 @@ export default function RaceForm({
   programCreated,
   setProgramCreated,
   programs,
+  setConfirmDeleteModal,
 }) {
   const [programDates, setProgramDates] = useState({
     start_date: "",
@@ -149,6 +150,9 @@ export default function RaceForm({
     setProgramLength(weeks);
   }
 
+  function openDeleteModal() {
+    setConfirmDeleteModal(true);
+  }
   function handleRaceDateChange(event) {
     setRaceDate(event.target.value);
     console.log("Race date " + raceDate);
@@ -230,16 +234,30 @@ export default function RaceForm({
       {activeProgramId && (
         <div>
           {programLength > 0 && (
-            <Button
-              sx={{
-                backgroundColor: "#333",
-                color: "white",
-                marginTop: "16px",
-              }}
-              onClick={handleReset}
-            >
-              Edit
-            </Button>
+            <>
+              <Button
+                sx={{
+                  backgroundColor: "#333",
+                  color: "white",
+                  marginTop: "16px",
+                }}
+                onClick={handleReset}
+              >
+                Edit
+              </Button>
+              {""}
+              <Button
+                sx={{
+                  backgroundColor: "#ff3939",
+                  color: "white",
+                  marginTop: "16px",
+                  marginLeft: "16px",
+                }}
+                onClick={openDeleteModal}
+              >
+                Delete program
+              </Button>
+            </>
           )}
           {(edit || programCreated) && getStepContent(activeStep)}
           {(edit || programCreated) && (
