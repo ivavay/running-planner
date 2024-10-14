@@ -224,18 +224,30 @@ const DataContainer = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
   width: 200px;
+  @media (max-width: 768px) {
+    margin: 20px 12px;
+  }
 `;
 const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 const ChartCard = styled.div`
   height: auto;
   width: 40%;
   margin: 20px;
+  @media (max-width: 768px) {
+    width: 90%;
+  }
 `;
 const ChartContainer = styled.div`
   display: flex;
   justify-content: center;
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;

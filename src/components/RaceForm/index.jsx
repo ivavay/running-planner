@@ -333,6 +333,9 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 const RaceInfo = styled.div`
   display: flex;
@@ -392,6 +395,9 @@ const ProgramWeeksTotal = styled.div`
   padding: 8px 16px;
   width: 25%;
   height: 150px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 const SavedRaceInfo = styled.div`
   font-weight: 500;
@@ -402,6 +408,9 @@ const SavedRaceInfo = styled.div`
   padding: 16px;
   width: 25%;
   height: 150px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 const ProgramDates = styled.div`
   margin-top: 16px;
@@ -412,4 +421,7 @@ const ProgramDates = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;

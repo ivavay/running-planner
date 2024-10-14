@@ -289,6 +289,9 @@ const Footer = styled.footer`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 `;
 const Images = styled.div`
   display: flex;
