@@ -101,7 +101,7 @@ export default function Calendar({
 
   // Get number of days in each month
   function getDaysInMonth(month, year) {
-    return new Date(year, month, 0).getDate();
+    return new Date(year, month + 1, 0).getDate();
   }
 
   const month = currentDate.getMonth();
