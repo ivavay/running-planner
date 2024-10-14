@@ -71,12 +71,16 @@ export default function Header() {
         <Logo>Running Planner</Logo>
       </NavLink>
       <Navlinks>
-        <NavItem>
-          <NavLink to="/activities">Activities</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to="/recap">Recap</NavLink>
-        </NavItem>
+        {user ? (
+          <>
+            <NavItem>
+              <NavLink to="/activities">Activities</NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to="/recap">Recap</NavLink>
+            </NavItem>
+          </>
+        ) : null}
         {user ? (
           <NavItem onClick={handleSignOut}>Log Out</NavItem>
         ) : (
