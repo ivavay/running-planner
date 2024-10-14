@@ -9,7 +9,7 @@ import Login from "./pages/Login/index.jsx";
 import Authorize from "./pages/Authorize/index.jsx";
 import styled from "styled-components";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-
+import NotFound from "./pages/NotFound";
 const router = createBrowserRouter([
   {
     element: (
@@ -46,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: "authorize",
         element: <Authorize />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
       },
     ],
   },
