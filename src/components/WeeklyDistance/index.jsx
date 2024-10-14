@@ -11,6 +11,7 @@ export default function WeeklyDistance({
 }) {
   const [currentDistance, setCurrentDistance] = useState("");
   const [selectedWeek, setSelectedWeek] = useState(1);
+  const [validationError, setValidationError] = useState("");
 
   useEffect(() => {
     async function loadWeeklyDistances() {
@@ -32,6 +33,12 @@ export default function WeeklyDistance({
       updatedDistances[selectedWeek - 1] = distance;
     } else {
       updatedDistances[selectedWeek - 1] = distance;
+    }
+    // If the distance is not a number, set an error message
+    if (isNaN(distance)) {
+      setValidationError("Please enter a number for the distance");
+    } else {
+      setValidationError("");
     }
 
     setWeeklyDistances(updatedDistances);
@@ -72,6 +79,11 @@ export default function WeeklyDistance({
             <WeeklyDistanceButtoon onClick={addWeeklyDistance}>
               Set
             </WeeklyDistanceButtoon>
+            {validationError && (
+              <p style={{ color: "red", fontSize: "12px", margin: "4px 0" }}>
+                {validationError}
+              </p>
+            )}
           </WeeklyDistanceContainer>
           <DistancesContainer>
             {weeklyDistances.map((distance, index) => (
