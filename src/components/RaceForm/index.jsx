@@ -248,7 +248,7 @@ export default function RaceForm({
               {""}
               <Button
                 sx={{
-                  backgroundColor: "#ff3939",
+                  backgroundColor: "#ee5c5c",
                   color: "white",
                   marginTop: "16px",
                   marginLeft: "16px",

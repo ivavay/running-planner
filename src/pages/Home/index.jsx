@@ -277,7 +277,7 @@ const DeleteModal = styled.div`
     margin-top: 24px;
   }
   button.delete {
-    background-color: #ff3939;
+    background-color: #ee5c5c;
   }
 `;
 const FooterLogo = styled.img`
@@ -302,6 +302,10 @@ const PromoImage = styled.img`
   width: 75%;
   height: auto;
   margin: 16px 10px;
+  @media (max-width: 768px) {
+    margin-top: 24px;
+    width: 100%;
+  }
 `;
 
 const WelcomeHeader = styled.h1`

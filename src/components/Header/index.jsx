@@ -123,19 +123,28 @@ export default function Header() {
       {menuOpen ? (
         <Sidebar>
           <>
-            <ExitIcon onClick={toggleMenu} src={exitIcon} />
-            <NavItem>
-              <NavLinkMobile to="/activities">Activities</NavLinkMobile>
-            </NavItem>
-            <NavItem>
-              <NavLinkMobile to="/recap">Recap</NavLinkMobile>
-            </NavItem>
-            <NavItem onClick={handleSignOut}>Log Out</NavItem>
-            <NavItem>
-              <StravaButton onClick={redirectToStravaOauth}>
-                <StravaImg src={StravaConnect}></StravaImg>
-              </StravaButton>
-            </NavItem>
+            {user ? (
+              <>
+                <ExitIcon onClick={toggleMenu} src={exitIcon} />
+                <NavItem>
+                  <NavLinkMobile to="/activities">Activities</NavLinkMobile>
+                </NavItem>
+                <NavItem>
+                  <NavLinkMobile to="/recap">Recap</NavLinkMobile>
+                </NavItem>
+                <NavItem onClick={handleSignOut}>Log Out</NavItem>
+                <NavItem>
+                  <StravaButton onClick={redirectToStravaOauth}>
+                    <StravaImg src={StravaConnect}></StravaImg>
+                  </StravaButton>
+                </NavItem>
+              </>
+            ) : (
+              <>
+                <ExitIcon onClick={toggleMenu} src={exitIcon} />
+                <NavItem onClick={handleSignIn}>Log in</NavItem>
+              </>
+            )}
           </>
         </Sidebar>
       ) : null}
