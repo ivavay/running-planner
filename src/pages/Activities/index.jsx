@@ -4,6 +4,7 @@ import polyline from "@mapbox/polyline";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import styled from "styled-components";
+import placeholder from "../../assets/placeholder.png";
 
 export default function Activities() {
   const [data, setData] = useState([]);
@@ -83,7 +84,17 @@ export default function Activities() {
                         <p>{(activity.distance / 1000).toFixed(2)} km</p>
                         <p>{movingTime}</p>
                       </ActivityDetails>
-                      <img src={mapURLs[index]} alt={activity.name} />
+                      <img
+                        src={mapURLs[index]}
+                        alt={activity.name}
+                        onError={(e) => {
+                          e.target.src = placeholder; // Set the placeholder image on error
+                        }}
+                        style={{
+                          objectFit: "contain",
+                          width: "300px",
+                        }}
+                      />
                     </div>
                   </Card>
                 </div>
