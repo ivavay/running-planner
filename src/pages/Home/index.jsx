@@ -242,6 +242,10 @@ export default function Home() {
         />
       )}
       <Footer>
+        <FooterNote>
+          Note: If not connected Strava, cannot utilize the full features of the
+          app.
+        </FooterNote>
         <FooterLogo src={StravaLogo} alt="Strava Logo" />
       </Footer>
     </>
@@ -254,6 +258,13 @@ const ButtonOptions = styled.div`
   justify-content: space-between;
 `;
 
+const FooterNote = styled.p`
+  color: #333;
+  font-size: 12px;
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 const DeleteModal = styled.div`
   position: fixed;
   top: 50%;
@@ -288,8 +299,10 @@ const FooterLogo = styled.img`
 const Footer = styled.footer`
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   @media (max-width: 768px) {
+    flex-direction: column;
+    align--items: center;
     justify-content: center;
   }
 `;
@@ -338,6 +351,12 @@ const ProgramsContainer = styled.div`
   h3 {
     margin-top: 40px;
     color: #333;
+  }
+  @media (max-width: 768px) {
+    ul {
+      display: flex;
+      flex-direction: column;
+    }
   }
 `;
 const ProgramButton = styled.button`

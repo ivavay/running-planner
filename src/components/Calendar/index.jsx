@@ -462,15 +462,12 @@ const WeekSelectionButton = styled.button`
 `;
 const Day = styled.div`
   text-align: left;
-  text-decoration: ${(props) =>
-    props.isToday ? "#4a5bff underline 5px" : "none"};
   margin: 0;
   font-size: 12px;
   width: 100%;
   height: 150px;
   border: 1px solid #e1e1e1;
   padding: 4px;
-  background-color: white;
   @media (max-width: 768px) {
     width: 30px;
   }
