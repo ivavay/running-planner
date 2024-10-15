@@ -458,18 +458,19 @@ const WeekSelectionButton = styled.button`
   padding: 4px 8px;
   border-radius: 4px;
   margin-right: 8px;
+  margin-top: 16px;
 `;
 const Day = styled.div`
   text-align: left;
-  text-decoration: ${(props) =>
-    props.isToday ? "#4a5bff underline 5px" : "none"};
   margin: 0;
   font-size: 12px;
   width: 100%;
   height: 150px;
   border: 1px solid #e1e1e1;
   padding: 4px;
-  background-color: white;
+  @media (max-width: 768px) {
+    width: 30px;
+  }
 `;
 const MonthNavigation = styled.div`
   display: flex;
@@ -498,6 +499,10 @@ const EventModalCard = styled.div`
   flex-direction: column;
   justify-content: center;
   border-radius: 8px;
+  @media (max-width: 768px) {
+    width: 80%;
+    left: 5%;
+  }
 `;
 const EventDistance = styled.input`
   width: 150px;
@@ -570,6 +575,10 @@ const EventBtnContainer = styled.div`
 const WeeksTotalContainer = styled.div`
   display: flex;
   justify-content: center;
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
 `;
 const ModalButtons = styled.div`
   display: flex;

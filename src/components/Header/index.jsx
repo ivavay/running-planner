@@ -9,9 +9,13 @@ import {
   signInWithPopup,
   signOut,
 } from "../../firebase";
-import StravaConnect from "../../assets/connect_strava.png";
+import StravaConnect from "../../assets/strava_connect.png";
+import HamburgerMenu from "../../assets/hamburger.png";
+import exitIcon from "../../assets/exit.png";
+import { set } from "date-fns";
 
 export default function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const dynamicURL = window.location.href;
   console.log("Dynamic URL:", dynamicURL);
   const [user, setUser] = useState(null);
@@ -80,7 +84,10 @@ export default function Header() {
     const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
     window.location.href = stravaOauthURL;
   }
-
+  function toggleMenu() {
+    setMenuOpen(!menuOpen);
+    console.log("Menu toggled");
+  }
   return (
     <Navbar>
       <NavLink to="/">
@@ -102,7 +109,7 @@ export default function Header() {
             <NavItem onClick={handleSignOut}>Log Out</NavItem>
             <NavItem>
               <StravaButton onClick={redirectToStravaOauth}>
-                <img src={StravaConnect}></img>
+                <StravaImg src={StravaConnect}></StravaImg>
               </StravaButton>
             </NavItem>
           </>
@@ -110,14 +117,86 @@ export default function Header() {
           <NavItem onClick={handleSignIn}>Log in</NavItem>
         )}
       </Navlinks>
+
+      <HamburgerIcon onClick={toggleMenu} src={HamburgerMenu} />
+
+      {menuOpen ? (
+        <Sidebar>
+          <>
+            {user ? (
+              <>
+                <ExitIcon onClick={toggleMenu} src={exitIcon} />
+                <NavItem>
+                  <NavLinkMobile to="/activities">Activities</NavLinkMobile>
+                </NavItem>
+                <NavItem>
+                  <NavLinkMobile to="/recap">Recap</NavLinkMobile>
+                </NavItem>
+                <NavItem onClick={handleSignOut}>Log Out</NavItem>
+                <NavItem>
+                  <StravaButton onClick={redirectToStravaOauth}>
+                    <StravaImg src={StravaConnect}></StravaImg>
+                  </StravaButton>
+                </NavItem>
+              </>
+            ) : (
+              <>
+                <ExitIcon onClick={toggleMenu} src={exitIcon} />
+                <NavItem onClick={handleSignIn}>Log in</NavItem>
+              </>
+            )}
+          </>
+        </Sidebar>
+      ) : null}
     </Navbar>
   );
 }
 
-const StravaButton = styled.div``;
+const Sidebar = styled.div`
+  z-index: 100;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 65%;
+  color: #333;
+  height: 100vh;
+  background-color: #dbdeff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+`;
+const HamburgerIcon = styled.img`
+  height: 24px;
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+const ExitIcon = styled.img`
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+    padding: 24px;
+    height: 24px;
+  }
+`;
+const StravaImg = styled.img`
+  height: 48px;
+`;
+const StravaButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+`;
 const NavLink = styled(Link)`
   text-decoration: none;
   color: #333;
+`;
+const NavLinkMobile = styled(Link)`
+  text-decoration: none;
+  color: #333;
+  margin-top: 24px;
+  font-size: 20px;
 `;
 
 const Navbar = styled.nav`
@@ -132,11 +211,18 @@ const Navlinks = styled.div`
   display: flex;
   justify-content: end;
   align-items: center;
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 const NavItem = styled.div`
   margin-right: 24px;
   text-decoration: none;
   color: #333;
+  @media (max-width: 768px) {
+    font-size: 20px;
+    margin-top: 24px;
+  }
 `;
 const Logo = styled.h3`
   font-weight: 700;

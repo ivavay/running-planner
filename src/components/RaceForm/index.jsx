@@ -27,6 +27,7 @@ export default function RaceForm({
   programCreated,
   setProgramCreated,
   programs,
+  setConfirmDeleteModal,
 }) {
   const [programDates, setProgramDates] = useState({
     start_date: "",
@@ -149,6 +150,9 @@ export default function RaceForm({
     setProgramLength(weeks);
   }
 
+  function openDeleteModal() {
+    setConfirmDeleteModal(true);
+  }
   function handleRaceDateChange(event) {
     setRaceDate(event.target.value);
     console.log("Race date " + raceDate);
@@ -197,7 +201,7 @@ export default function RaceForm({
                 value={programEndDate}
                 onChange={handleProgramEndChange}
               ></ProgramEnd>
-              <SetButton onClick={calculateProgramWeeks}>Set</SetButton>
+              {/* <SetButton onClick={calculateProgramWeeks}>Set</SetButton> */}
             </ProgramInfo>
           </>
         );
@@ -230,16 +234,30 @@ export default function RaceForm({
       {activeProgramId && (
         <div>
           {programLength > 0 && (
-            <Button
-              sx={{
-                backgroundColor: "#333",
-                color: "white",
-                marginTop: "16px",
-              }}
-              onClick={handleReset}
-            >
-              Edit
-            </Button>
+            <>
+              <Button
+                sx={{
+                  backgroundColor: "#333",
+                  color: "white",
+                  marginTop: "16px",
+                }}
+                onClick={handleReset}
+              >
+                Edit
+              </Button>
+              {""}
+              <Button
+                sx={{
+                  backgroundColor: "#ee5c5c",
+                  color: "white",
+                  marginTop: "16px",
+                  marginLeft: "16px",
+                }}
+                onClick={openDeleteModal}
+              >
+                Delete program
+              </Button>
+            </>
           )}
           {(edit || programCreated) && getStepContent(activeStep)}
           {(edit || programCreated) && (
@@ -315,6 +333,9 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 const RaceInfo = styled.div`
   display: flex;
@@ -374,6 +395,9 @@ const ProgramWeeksTotal = styled.div`
   padding: 8px 16px;
   width: 25%;
   height: 150px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 const SavedRaceInfo = styled.div`
   font-weight: 500;
@@ -384,6 +408,9 @@ const SavedRaceInfo = styled.div`
   padding: 16px;
   width: 25%;
   height: 150px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 const ProgramDates = styled.div`
   margin-top: 16px;
@@ -394,4 +421,7 @@ const ProgramDates = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
