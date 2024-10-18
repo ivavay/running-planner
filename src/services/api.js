@@ -1,4 +1,4 @@
-import { fireAuth, fireDb } from './src/firebase.js';
+import { fireAuth, fireDb } from './firebase.js';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, setDoc, getDoc, doc, addDoc, getDocs, where, query, deleteDoc } from 'firebase/firestore';
 

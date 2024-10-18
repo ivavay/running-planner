@@ -1,33 +1,29 @@
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { collection, addDoc, where, query, getDocs } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import exitIcon from "../../assets/exit.png";
+import HamburgerMenu from "../../assets/hamburger.png";
+import StravaConnect from "../../assets/strava_connect.png";
 import {
-  fireDb,
   fireAuth,
+  fireDb,
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-} from "../../firebase";
-import StravaConnect from "../../assets/strava_connect.png";
-import HamburgerMenu from "../../assets/hamburger.png";
-import exitIcon from "../../assets/exit.png";
-import { set } from "date-fns";
+} from "../../services/firebase";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const dynamicURL = window.location.href;
-  console.log("Dynamic URL:", dynamicURL);
   const [user, setUser] = useState(null);
+
   useEffect(() => {
-    console.log("useEffect running");
-    // Check if user is logged in, if so, set user state
     const unsubscribe = fireAuth.onAuthStateChanged(async (user) => {
-      console.log(user.uid);
       if (user) {
-        setUser(user); // User is logged in
+        setUser(user);
       } else {
-        setUser(null); // No user is logged in
+        setUser(null);
       }
     });
 
@@ -40,10 +36,6 @@ export default function Header() {
       const result = await signInWithPopup(fireAuth, provider);
       const user = result.user;
 
-      // Handle successful sign-in
-      console.log("User signed in:", result.user.displayName);
-
-      // Check if user exists in database. If not, then add user to firestore
       const userQuery = query(
         collection(fireDb, "users"),
         where("email", "==", user.email)
@@ -56,11 +48,8 @@ export default function Header() {
           name: user.displayName,
           email: user.email,
         });
-      } else {
-        console.log("User already exists in database, therefore not added");
       }
     } catch (error) {
-      // Handle errors
       console.error("Error signing in:", error);
     }
   }
@@ -68,7 +57,6 @@ export default function Header() {
   function handleSignOut() {
     signOut(fireAuth)
       .then(() => {
-        console.log("User signed out");
         setUser(null);
       })
       .catch((error) => {
@@ -76,18 +64,17 @@ export default function Header() {
       });
   }
 
-  // Is user currently signed in
-  console.log("User:", user);
-
   // Redirect to Strava OAuth page
   function redirectToStravaOauth() {
     const stravaOauthURL = `https://www.strava.com/oauth/authorize?client_id=134373&response_type=code&redirect_uri=${dynamicURL}authorize&scope=read,activity:read&approval_prompt=force`;
     window.location.href = stravaOauthURL;
   }
-  function toggleMenu() {
+
+  function toggleHamburgerMenu() {
     setMenuOpen(!menuOpen);
     console.log("Menu toggled");
   }
+
   return (
     <Navbar>
       <NavLink to="/">
@@ -118,14 +105,14 @@ export default function Header() {
         )}
       </Navlinks>
 
-      <HamburgerIcon onClick={toggleMenu} src={HamburgerMenu} />
+      <HamburgerIcon onClick={toggleHamburgerMenu} src={HamburgerMenu} />
 
       {menuOpen ? (
         <Sidebar>
           <>
             {user ? (
               <>
-                <ExitIcon onClick={toggleMenu} src={exitIcon} />
+                <ExitIcon onClick={toggleHamburgerMenu} src={exitIcon} />
                 <NavItem>
                   <NavLinkMobile to="/activities">Activities</NavLinkMobile>
                 </NavItem>
@@ -141,7 +128,7 @@ export default function Header() {
               </>
             ) : (
               <>
-                <ExitIcon onClick={toggleMenu} src={exitIcon} />
+                <ExitIcon onClick={toggleHamburgerMenu} src={exitIcon} />
                 <NavItem onClick={handleSignIn}>Log in</NavItem>
               </>
             )}

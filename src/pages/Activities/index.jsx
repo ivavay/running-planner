@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { fetchData } from "../../../api";
+import { fetchData } from "../../services/api";
 import polyline from "@mapbox/polyline";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
