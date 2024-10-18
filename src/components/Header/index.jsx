@@ -72,7 +72,6 @@ export default function Header() {
 
   function toggleHamburgerMenu() {
     setMenuOpen(!menuOpen);
-    console.log("Menu toggled");
   }
 
   return (

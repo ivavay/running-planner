@@ -1,28 +1,21 @@
-import { useEffect, useState, useRef } from "react";
-import { fetchData } from "../../services/api";
-import polyline from "@mapbox/polyline";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import placeholder from "../../assets/placeholder.png";
+import { fetchData } from "../../services/api";
 
 export default function Activities() {
   const [data, setData] = useState([]);
   const [mapURLs, setMapURLs] = useState([]);
 
   mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-  // Fetch the activities data from the API using await / async
-  // Only set the data state if the fetch is successful
-  // Display the activities data on a map only after data is fetched
-  // Fetch the activities data from the API using await / async
+
   useEffect(() => {
     const fetchActivitiesData = async () => {
       try {
         const fetchedData = await fetchData();
         setData(fetchedData);
-        console.log("Fetched Data: ", fetchedData);
-        // Map the strava acitvity data summary_polyline to a map image
-        // Use polyline directly, no need to decode the polyline
         const mapURLs = fetchedData.map(
           (activity) =>
             `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/path-2+266fdd-1(${encodeURIComponent(
@@ -33,7 +26,7 @@ export default function Activities() {
         );
         setMapURLs(mapURLs);
       } catch (error) {
-        console.error("Error fetching data: ", error);
+        console.error(error);
       }
     };
 

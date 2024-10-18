@@ -1,6 +1,6 @@
-import { fireAuth, fireDb } from './firebase.js';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, setDoc, getDoc, doc, addDoc, getDocs, where, query, deleteDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { fireAuth, fireDb } from './firebase.js';
 
 const client_id = import.meta.env.VITE_STRAVA_CLIENT_ID;
 const client_secret = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
@@ -64,10 +64,9 @@ export async function createProgram(userId) {
       },
     });
 
-    console.log("Program created successfully with program ID:", newProgramRef.id);
     return newProgramRef.id;
   } catch (error) {
-    console.error("Error creating program: ", error);
+   
     throw error;
   }
 }
@@ -84,7 +83,7 @@ export async function saveRaceInfo(raceName, raceDate, raceGoal, programId) {
         race_goal: raceGoal,
       },
     }, { merge: true });
-    console.log('Race info saved successfully.');
+   
   } catch (error) {
     console.error("Error", error);
   }
@@ -137,8 +136,6 @@ export async function saveProgramLength(programId, startDate, endDate) {
       },
     }, { merge: true });
 
-
-    console.log("Program length updated successfully.");
   } catch (error) {
     console.error("Error updating program length: ", error);
     throw error;
@@ -167,7 +164,6 @@ export async function saveWeeklyDistances(weeklyDistances, programId) {
     // Save the updated week array back to Firestore
     await setDoc(programRef, { ...programData, week: updatedWeekArray });
 
-    console.log("Weekly distances saved successfully.");
   } catch (error) {
     console.error("Error saving weekly distances: ", error);
   }
@@ -201,7 +197,6 @@ export async function fetchEvents(programId) {
     const eventsSnapshot = await getDocs(eventsRef);
     const events = eventsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
 
-    console.log(events);
     return events;
   } catch (error) {
     console.error("Error fetching events: ", error);
@@ -244,8 +239,6 @@ export async function deleteEvent(eventInputs, programId) {
     const programIdFormatted = String(programId);
     const eventDocRef = doc(fireDb, "programs", programIdFormatted, "events", eventInputs.id);
     await deleteDoc(eventDocRef);
-
-    console.log(`Event with ID ${eventInputs.id} deleted successfully.`);
   } catch (error) {
     console.error("Error deleting document: ", error);
   }
@@ -253,7 +246,7 @@ export async function deleteEvent(eventInputs, programId) {
 
 // Gets a new access token from Strava using refresh token
 const refresh_token = localStorage.getItem('strava_refresh_token'); 
-console.log('Refresh Token:', refresh_token);
+
 export async function fetchData() {
   const headers = {
     'Accept': 'application/json',
@@ -275,9 +268,7 @@ export async function fetchData() {
 
   const reauthorizedJSON = await reauthorizedResponse.json();
   const newAccessToken = reauthorizedJSON.access_token;
-  // const newAccessToken = '946c9283e12ad99fcadab82850f24f665129df78'
-  console.log('New Access Token: ', newAccessToken);
-  console.log('ClientId: ', client_id);
+
 
   const perPage = 60
   // First-time Authorization 
