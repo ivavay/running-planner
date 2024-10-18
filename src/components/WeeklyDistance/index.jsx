@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { saveWeeklyDistances, fetchWeeklyDistances } from "../../../api";
+import { fetchWeeklyDistances, saveWeeklyDistances } from "../../services/api";
 
 export default function WeeklyDistance({
   programLength,
@@ -13,16 +13,8 @@ export default function WeeklyDistance({
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [validationError, setValidationError] = useState("");
 
-  useEffect(() => {
-    async function loadWeeklyDistances() {
-      if (activeProgramId) {
-        const distances = await fetchWeeklyDistances(activeProgramId);
-        setWeeklyDistances(distances);
-      }
-    }
-
-    loadWeeklyDistances();
-  }, [activeProgramId, setWeeklyDistances]);
+  // Convert programLength to an array of weeks
+  let weeksTotal = Array.from({ length: programLength }, (_, i) => i + 1);
 
   function addWeeklyDistance() {
     let distance = parseInt(currentDistance);
@@ -34,6 +26,7 @@ export default function WeeklyDistance({
     } else {
       updatedDistances[selectedWeek - 1] = distance;
     }
+
     // If the distance is not a number, set an error message
     if (isNaN(distance)) {
       setValidationError("Please enter a number for the distance");
@@ -45,12 +38,17 @@ export default function WeeklyDistance({
     setCurrentDistance("");
     saveWeeklyDistances(updatedDistances, activeProgramId);
   }
-  // Convert programLength to an array of weeks
-  let weeksTotal = Array.from({ length: programLength }, (_, i) => i + 1);
 
   useEffect(() => {
-    console.log("Updated Weekly Distances:", weeklyDistances);
-  }, [weeklyDistances]);
+    async function loadWeeklyDistances() {
+      if (activeProgramId) {
+        const distances = await fetchWeeklyDistances(activeProgramId);
+        setWeeklyDistances(distances);
+      }
+    }
+
+    loadWeeklyDistances();
+  }, [activeProgramId, setWeeklyDistances]);
 
   return (
     <>

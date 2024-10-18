@@ -1,30 +1,21 @@
-import Calendar from "../../components/Calendar";
-import RaceForm from "../../components/RaceForm";
-import WeeklyDistance from "../../components/WeeklyDistance";
 import {
   collection,
   deleteDoc,
-  addDoc,
+  doc,
   getDocs,
   query,
   where,
-  doc,
 } from "firebase/firestore";
-import {
-  fireDb,
-  fireAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-} from "../../firebase";
 import { useEffect, useState } from "react";
-import { fetchEvents, createProgram, getRaceInfo } from "../../../api";
 import styled from "styled-components";
 import promo1 from "../../assets/promo-1.png";
 import promo2 from "../../assets/promo-2.png";
 import StravaLogo from "../../assets/strava-logo.png";
-import { set } from "date-fns";
-import { Copyright } from "lucide-react";
+import Calendar from "../../components/Calendar";
+import RaceForm from "../../components/RaceForm";
+import WeeklyDistance from "../../components/WeeklyDistance";
+import { createProgram, fetchEvents, getRaceInfo } from "../../services/api";
+import { fireAuth, fireDb } from "../../services/firebase";
 
 export default function Home() {
   const [weeklyDistances, setWeeklyDistances] = useState([]);
@@ -65,26 +56,33 @@ export default function Home() {
     });
   }
 
-  useEffect(() => {
-    console.log("useEffect running");
-    // Check if user is logged in, if so, set user state
-    const unsubscribe = fireAuth.onAuthStateChanged(async (user) => {
-      console.log(user.uid);
-      if (user) {
-        console.log("User signed in:", user.displayName);
-        setUser(user);
-        fetchUserPrograms(user.uid);
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+  // Function to delete program from firebase
+  function handleDeleteProgram(programId) {
+    // Delete program from firestore
+    const programRef = doc(fireDb, "programs", programId);
+    // Delete the document
+    setConfirmDeleteModal(true);
+    deleteDoc(programRef)
+      .then(() => {
+        // Remove program from programs state
+        setPrograms((prevPrograms) =>
+          prevPrograms.filter((program) => program.id !== programId)
+        );
+        // Remove program from programRaceInfo state
+        const updatedProgramRaceInfo = { ...programRaceInfo };
+        delete updatedProgramRaceInfo[programId];
+        setProgramRaceInfo(updatedProgramRaceInfo);
+        // Reset active program ID
+        setActiveProgramId(null);
+        setConfirmDeleteModal(false);
+      })
+      .catch((error) => {
+        console.error("Error deleting program: ", error);
+      });
+  }
 
   async function fetchUserPrograms(userId) {
     try {
-      console.log("Fetching programs for userId:", userId);
       // Fetch programs where user_id matches the logged-in user's ID
       const q = query(
         collection(fireDb, "programs"),
@@ -97,7 +95,6 @@ export default function Home() {
         const programId = doc.id;
         programs.push(programId);
         const raceData = await getRaceInfo(programId);
-        console.log("Race data:", raceData);
         raceInfo[programId] = raceData
           ? raceData.race.race_name
           : "No Race Info";
@@ -117,32 +114,19 @@ export default function Home() {
     });
   }
 
-  // Function to delete program from firebase
-  function handleDeleteProgram(programId) {
-    console.log("Deleting program:", programId);
-    // Delete program from firestore
-    const programRef = doc(fireDb, "programs", programId);
-    // Delete the document
-    setConfirmDeleteModal(true);
-    deleteDoc(programRef)
-      .then(() => {
-        console.log("Program deleted successfully");
-        // Remove program from programs state
-        setPrograms((prevPrograms) =>
-          prevPrograms.filter((program) => program.id !== programId)
-        );
-        // Remove program from programRaceInfo state
-        const updatedProgramRaceInfo = { ...programRaceInfo };
-        delete updatedProgramRaceInfo[programId];
-        setProgramRaceInfo(updatedProgramRaceInfo);
-        // Reset active program ID
-        setActiveProgramId(null);
-        setConfirmDeleteModal(false);
-      })
-      .catch((error) => {
-        console.error("Error deleting program: ", error);
-      });
-  }
+  useEffect(() => {
+    // Check if user is logged in, if so, set user state
+    const unsubscribe = fireAuth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setUser(user);
+        fetchUserPrograms(user.uid);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <>

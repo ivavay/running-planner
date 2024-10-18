@@ -1,10 +1,12 @@
+import { Button, Step, StepLabel, Stepper } from "@mui/material";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useState, useEffect } from "react";
-import { saveProgramLength } from "../../../api";
-import { getProgramLength } from "../../../api";
-import { saveRaceInfo, getRaceInfo } from "../../../api";
-import { Stepper, Step, StepLabel, Button, Typography } from "@mui/material";
-import { set } from "date-fns";
+import {
+  getProgramLength,
+  getRaceInfo,
+  saveProgramLength,
+  saveRaceInfo,
+} from "../../services/api";
 
 export default function RaceForm({
   programLength,
@@ -37,41 +39,26 @@ export default function RaceForm({
   const steps = ["Step 1 - Race Info", "Step 2 - Training Program Length"];
   const [edit, setEdit] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const today = new Date().toISOString().split("T")[0];
 
-  const handleNext = () => {
+  function handleNext() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     if (activeStep === steps.length - 1) {
       setProgramCreated(false);
       setEdit(false);
     }
-  };
+  }
 
-  const handleBack = () => {
+  function handleBack() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
+  }
 
-  const handleReset = () => {
+  function handleEdit() {
     setActiveStep(0);
     setEdit(true);
-  };
+  }
 
-  useEffect(() => {
-    async function fetchRaceInfo() {
-      if (activeProgramId) {
-        const info = await getRaceInfo(activeProgramId);
-        if (info) {
-          setRaceInfo(info.race);
-          setRaceName(info.race.race_name);
-          setRaceDate(info.race.race_date);
-          setRaceGoal(info.race.race_goal);
-        }
-      }
-    }
-
-    fetchRaceInfo();
-  }, [activeProgramId]);
-
-  const handleSaveRaceInfo = async () => {
+  async function handleSaveRaceInfo() {
     if (activeProgramId) {
       await saveRaceInfo(raceName, raceDate, raceGoal, activeProgramId);
       setRaceInfo({
@@ -80,82 +67,29 @@ export default function RaceForm({
         race_goal: raceGoal,
       });
     }
-  };
-
-  // Render the race name button upon setting race info
-  useEffect(() => {
-    console.log("Race Info Set:", raceInfo);
-  }, [raceInfo]);
-
-  const today = new Date().toISOString().split("T")[0];
-
-  // Use active program ID from local storage to fetch program dates
-  console.log("Active program ID: ", activeProgramId);
-  useEffect(() => {
-    async function fetchProgramDates() {
-      if (activeProgramId) {
-        const dates = await getProgramLength(activeProgramId);
-        console.log("Dates: ", dates);
-        if (dates) {
-          setProgramDates(dates);
-          setProgramStartDate(dates.start_date);
-          setProgramEndDate(dates.end_date);
-        }
-      }
-    }
-
-    fetchProgramDates();
-  }, [activeProgramId, setProgramDates]);
-
-  useEffect(() => {
-    if (activeProgramId) {
-      if (programStartDate && programEndDate) {
-        saveProgramLength(activeProgramId, programStartDate, programEndDate);
-      }
-    }
-  }, [programStartDate, programEndDate]);
-
-  useEffect(() => {
-    calculateProgramWeeks();
-  }, [programStartDate, programEndDate]);
+  }
 
   function handleProgramStartChange(event) {
     setProgramStartDate(event.target.value);
-    console.log("Start " + programStartDate);
   }
 
   function handleProgramEndChange(event) {
     setProgramEndDate(event.target.value);
-    console.log("End " + programEndDate);
   }
 
   function calculateProgramWeeks() {
     const start_date = new Date(programStartDate);
     const end_date = new Date(programEndDate);
 
-    console.log(start_date, end_date);
-
-    // Cannot pick start date before today and end date has to be after start date
-    if (start_date > end_date) {
-      alert("Start date must be before end date");
-      return;
-    }
     const timeDifference = end_date - start_date;
-
     const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
-    console.log(dayDifference);
-    // Difference between dates in weeks
     const weeks = Math.floor(dayDifference / 7);
-    console.log(weeks);
+
     setProgramLength(weeks);
   }
 
   function openDeleteModal() {
     setConfirmDeleteModal(true);
-  }
-  function handleRaceDateChange(event) {
-    setRaceDate(event.target.value);
-    console.log("Race date " + raceDate);
   }
 
   function getStepContent(step) {
@@ -201,14 +135,58 @@ export default function RaceForm({
                 value={programEndDate}
                 onChange={handleProgramEndChange}
               ></ProgramEnd>
-              {/* <SetButton onClick={calculateProgramWeeks}>Set</SetButton> */}
             </ProgramInfo>
           </>
         );
       }
     }
   }
-  console.log("handleCreateProgram:", handleCreateProgram);
+
+  useEffect(() => {
+    async function fetchRaceInfo() {
+      if (activeProgramId) {
+        const info = await getRaceInfo(activeProgramId);
+        if (info) {
+          setRaceInfo(info.race);
+          setRaceName(info.race.race_name);
+          setRaceDate(info.race.race_date);
+          setRaceGoal(info.race.race_goal);
+        }
+      }
+    }
+
+    fetchRaceInfo();
+  }, [activeProgramId]);
+
+  // Use active program ID from local storage to fetch program dates
+  useEffect(() => {
+    async function fetchProgramDates() {
+      if (activeProgramId) {
+        const dates = await getProgramLength(activeProgramId);
+
+        if (dates) {
+          setProgramDates(dates);
+          setProgramStartDate(dates.start_date);
+          setProgramEndDate(dates.end_date);
+        }
+      }
+    }
+
+    fetchProgramDates();
+  }, [activeProgramId, setProgramDates]);
+
+  useEffect(() => {
+    if (activeProgramId) {
+      if (programStartDate && programEndDate) {
+        saveProgramLength(activeProgramId, programStartDate, programEndDate);
+      }
+    }
+  }, [programStartDate, programEndDate]);
+
+  useEffect(() => {
+    calculateProgramWeeks();
+  }, [programStartDate, programEndDate]);
+
   return (
     <>
       {(edit || programCreated) && (
@@ -241,7 +219,7 @@ export default function RaceForm({
                   color: "white",
                   marginTop: "16px",
                 }}
-                onClick={handleReset}
+                onClick={handleEdit}
               >
                 Edit
               </Button>

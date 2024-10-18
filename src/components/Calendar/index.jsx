@@ -1,8 +1,8 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { deleteEvent, fetchData, saveEvent } from "../../services/api";
 import Event from "../Event";
 import { ProgressBar } from "../ProgressBar";
-import { saveEvent, deleteEvent, fetchData, getProgramId } from "../../../api";
 
 export default function Calendar({
   setWeeklyDistances,
@@ -34,29 +34,6 @@ export default function Calendar({
   const [stravaEvents, setStravaEvents] = useState([]);
   const [validationError, setValidationError] = useState("");
 
-  // Set the states for firebase and strava events
-  useEffect(() => {
-    // Firebase events
-    setFirebaseEvents(eventsData);
-    // Strava events
-    fetchData().then((events) => {
-      setStravaEvents(events);
-    });
-  }, [eventsData]);
-
-  useEffect(() => {
-    console.log("Event created state updated: ", eventCreated);
-    // Any additional logic to handle re-renders based on eventCreated state
-  }, [eventCreated]);
-
-  useEffect(() => {
-    console.log("Event inputs state updated: ", eventInputs);
-    // Any additional logic to handle re-renders based on eventInputs state
-  }, [eventInputs]);
-
-  console.log("Firebase Events:", firebaseEvents);
-  console.log("Strava Events:", stravaEvents);
-
   // Helper function to compare two dates
   function areDatesEqual(date1, date2) {
     const d1 = new Date(date1).toISOString().split("T")[0];
@@ -83,8 +60,6 @@ export default function Calendar({
   };
 
   const matchedEvents = compareData();
-  // Print if the events are matched
-  console.log("Matched Events: ", matchedEvents);
 
   useEffect(() => {
     // Populate eventCreated state with eventsData
@@ -122,11 +97,6 @@ export default function Calendar({
     "November",
     "December",
   ];
-  // Util
-  // function toISOString(dateString) {
-  //   const date = new Date(dateString);
-  //   return date.toISOString();
-  // }
 
   // Get the first day of the month and the number of days in the month
   const firstDay = new Date(year, month, 1).getDay();
@@ -153,23 +123,16 @@ export default function Calendar({
     setCurrentDate(new Date(year, month + 1));
   }
 
-  // function handleJumpToMonth(weekNumber) {
-  //   Do later
-  //   I want to jump to the month where the selected week is
-  // }
   function handleWeekClick(weekNumber) {
     setSelectedWeek(weekNumber);
-    // handleJumpToMonth(weekNumber);
   }
-  // Click on a date cell to add an event (modal pops up)
-  // Double clicks don't work for some reason
+
   function handleOpenEventModal(index) {
     const date = new Date(year, month, calendarDays[index]).toLocaleDateString(
       "en-CA"
     ); // Capture the date in YYYY-MM-DD format
     setSelectedDay(date);
     const existingEvent = eventCreated[date]?.[0];
-    console.log("Existing event: ", existingEvent);
     // If event exists, populate the inputs
     if (existingEvent) {
       // Ensure the existing event has an ID
@@ -178,7 +141,6 @@ export default function Calendar({
         return;
       }
       setEventInputs(existingEvent);
-      console.log("Existing event ID: ", existingEvent.id);
     } else {
       setEventInputs({ ...initialEventInputs, date });
     }
@@ -186,20 +148,9 @@ export default function Calendar({
     setEventModal(true);
   }
 
-  useEffect(() => {
-    console.log("Event modal is " + eventModal);
-  }, [eventModal]);
-
-  // const progr
-  // render validation error message if title is blank
-  useEffect(() => {
-    console.log("Validation error: ", validationError);
-  }, [validationError]);
-  // If event inputs are not all filled out, disable the save button
   async function handleCreateEvent() {
     if (selectedDay !== null) {
       try {
-        console.log("Program ID for created event: ", activeProgramId);
         if (activeProgramId) {
           if (eventInputs.title !== "") {
             const eventId = await saveEvent(eventInputs, activeProgramId);
@@ -225,13 +176,9 @@ export default function Calendar({
             setEventModal(false);
             setEventInputs(initialEventInputs);
           } else {
-            console.error("Title cannot be blank upon saving.");
             setValidationError("Title needs to be filled out");
           }
         }
-
-        console.log("Event ID after state update: ", eventId);
-        console.log("Event created: ", eventCreated);
       } catch (error) {
         console.error("Error creating event: ", error);
       }
@@ -261,8 +208,6 @@ export default function Calendar({
     if (selectedDay !== null) {
       e.preventDefault();
       try {
-        // If event is in firestore, you can delete it
-
         await deleteEvent(eventInputs, activeProgramId);
         setEventModal(false);
         setEventInputs(initialEventInputs);
@@ -273,13 +218,22 @@ export default function Calendar({
           );
           return newEvents;
         });
-        console.log(`Event with ID ${eventInputs.id} deleted successfully.`);
       } catch (error) {
         console.error("Error deleting event: ", error);
       }
     }
   }
   let weeksTotalArr = Array.from({ length: programLength }, (_, i) => i + 1);
+
+  // Set the states for firebase and strava events
+  useEffect(() => {
+    // Firebase events
+    setFirebaseEvents(eventsData);
+    // Strava events
+    fetchData().then((events) => {
+      setStravaEvents(events);
+    });
+  }, [eventsData]);
 
   return (
     <CalendarView>
@@ -328,18 +282,17 @@ export default function Calendar({
           const diffInTime =
             currentDate.getTime() - programStartDateFormatted.getTime();
           // Convert time difference to days
-          1000 * 3600 * 24; // number of milliseconds in a day
+          1000 * 3600 * 24; // Number of milliseconds in a day
           const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24)); // Converts time diff from milliseconds to days
           const weekNumber = Math.floor(diffInDays / 7) + 1;
 
           return (
             <Day
-              isToday={day === +todayDate}
               key={index}
               className="date-cell"
               onClick={() => handleOpenEventModal(index)}
               style={{
-                "border-bottom":
+                borderBottom:
                   selectedWeek === weekNumber
                     ? "6px solid #266fdd"
                     : "1px solid #ebebeb",
@@ -430,11 +383,6 @@ export default function Calendar({
 }
 
 const CalendarView = styled.div``;
-const ErrorMessage = styled.div`
-  color: red;
-  font-size: 12px;
-  margin: 4px 0;
-`;
 const Month = styled.div`
   text-align: center;
   padding: 20px 0;

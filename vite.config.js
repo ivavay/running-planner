@@ -4,8 +4,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// https://vitejs.dev/config/
+import dotenv from 'dotenv';
 
+// Load the env variables from the config/.env file
+dotenv.config({ path: path.resolve(__dirname, 'src/config/.env') });
 
 export default defineConfig({
   plugins: [react()],
