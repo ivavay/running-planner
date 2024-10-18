@@ -26,7 +26,7 @@ My motivation for wanting to work on this idea was because I wanted to build a t
 
 Example Google Log-in Account
 - Email: maple1015chen@gmail.com
-- Passowrd: Test12345!!!
+- Password: Test12345!!!
 
 
 Connect Strava 
