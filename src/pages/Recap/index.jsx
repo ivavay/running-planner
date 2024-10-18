@@ -1,20 +1,18 @@
-import { useState, useEffect } from "react";
+import { Chart, registerables } from "chart.js";
+import { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
 import styled from "styled-components";
 import { fetchData } from "../../services/api";
-import { Line } from "react-chartjs-2";
-import { Chart, registerables } from "chart.js";
 
 // Register the line chart type
 Chart.register(...registerables);
 
 export default function Recap() {
-  // Month navigation
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const month = currentMonth.getMonth();
   const year = currentMonth.getFullYear();
-  console.log("Current Month: ", month);
-  // Give each month its name
+
   const monthNames = [
     "January",
     "February",
@@ -38,19 +36,16 @@ export default function Recap() {
     setCurrentMonth(new Date(year, month + 1));
   }
 
-  // States for monthly data
   const [fastestRun, setFastestRun] = useState(null);
   const [longestRun, setLongestRun] = useState(null);
   const [averagePace, setAveragePace] = useState(null);
   const [monthlyTotalDistance, setMonthlyTotalDistance] = useState(null);
   const [monthlyPaces, setMonthlyPaces] = useState([]);
   const [monthlyDistances, setMonthlyDistances] = useState([]);
-  // Printing run data from Strava API that occured in the current month
+
   useEffect(() => {
     fetchData()
       .then((data) => {
-        console.log("Number of runs per month", data.length);
-        console.log("Current Month: ", month);
         // Filter by runs that occured in the month of the currentMonth
         const runs = data.filter((activity) => {
           const activityDate = new Date(activity.start_date_local);
@@ -60,7 +55,7 @@ export default function Recap() {
             activityDate.getFullYear() === year
           );
         });
-        // Reverse teh array so that the first run is the first run of the month
+        // Reverse the array so that the first run is the first run of the month
         runs.reverse();
         // Calculate paces for each run
         const paces = runs.map((run) => {
@@ -78,7 +73,6 @@ export default function Recap() {
         const distances = runs.map((run) => (run.distance / 1000).toFixed(1));
         setMonthlyDistances(distances);
 
-        console.log(`${month}`, runs);
         // Find the smallest number in the runs array to find the fastest run
         const fastestAvgSpeed = Math.max(
           ...runs.map((run) => run.average_speed)
@@ -89,18 +83,19 @@ export default function Recap() {
         // Make sure seconds are almost always two digits
         const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
         const kmpace = `${minutes}:${formattedSeconds}`;
-        console.log("Fastest Avg Speed: ", kmpace);
+
         setFastestRun(kmpace);
-        // Find the longest run aka the biggest number for distance in the array
+
         const longestRun = Math.max(...runs.map((run) => run.distance));
-        // Convert the distance from meters to kilometers
+
         const longestRunKm = (longestRun / 1000).toFixed(2);
-        console.log("Longest Run: ", longestRunKm);
+
         setLongestRun(longestRunKm);
+
         // Find the total distance for this month by adding up all the distances
         const totalDistance = runs.reduce((acc, run) => acc + run.distance, 0);
         const totalDistanceKm = (totalDistance / 1000).toFixed(2);
-        console.log("Total Distance: ", totalDistanceKm);
+
         setMonthlyTotalDistance(totalDistanceKm);
         // Find average pace for the month
         const totalAvgSpeed = runs.reduce(
@@ -117,13 +112,11 @@ export default function Recap() {
         const avgFormattedSeconds =
           avgSeconds < 10 ? `0${avgSeconds}` : `${avgSeconds}`;
         const avgKmpace = `${avgMinutes}:${avgFormattedSeconds}`;
-        console.log("Average Pace: ", avgKmpace);
+
         setAveragePace(avgKmpace);
       })
       .catch((error) => console.error("Error fetching data: ", error));
   }, [currentMonth, year]);
-
-  console.log("Monthly Paces: ", monthlyPaces);
 
   function convertPaceToDecimal(pace) {
     const [minutes, seconds] = pace.split(":");
