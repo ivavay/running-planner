@@ -5,10 +5,10 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-} from "../../firebase";
+} from "../../services/firebase";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { fetchEvents } from "../../../api";
+import { fetchEvents } from "../../services/api";
 
 export default function Login() {
   const [user, setUser] = useState(null);

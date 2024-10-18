@@ -1,15 +1,13 @@
-import "./App.css";
-import Header from "./components/Header";
-import Home from "./pages/Home/index.jsx";
-import Badges from "./pages/Badges/index.jsx";
-import Recap from "./pages/Recap/index.jsx";
-import Activities from "./pages/Activities/index.jsx";
-import Manage from "./pages/Manage/index.jsx";
-import Login from "./pages/Login/index.jsx";
-import Authorize from "./pages/Authorize/index.jsx";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import styled from "styled-components";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import NotFound from "./pages/NotFound";
+import Header from "../components/Header";
+import Activities from "../pages/Activities/index.jsx";
+import Authorize from "../pages/Authorize/index.jsx";
+import Home from "../pages/Home/index.jsx";
+import Login from "../pages/Login/index.jsx";
+import NotFound from "../pages/NotFound";
+import Recap from "../pages/Recap/index.jsx";
+import "./App.css";
 const router = createBrowserRouter([
   {
     element: (
@@ -24,20 +22,12 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "badges",
-        element: <Badges />,
-      },
-      {
         path: "recap",
         element: <Recap />,
       },
       {
         path: "activities",
         element: <Activities />,
-      },
-      {
-        path: "manage",
-        element: <Manage />,
       },
       {
         path: "login",

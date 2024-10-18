@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut} from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 const firebase_api_key = import.meta.env.VITE_FIREBASE_API_KEY;
 
@@ -20,6 +20,6 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase services
 const fireAuth = getAuth(app);
 const fireDb = getFirestore(app);
-// const provider = new GoogleAuthProvider();
 
-export { fireAuth, GoogleAuthProvider, fireDb, signInWithPopup, signOut};
+export { fireAuth, fireDb, GoogleAuthProvider, signInWithPopup, signOut };
+

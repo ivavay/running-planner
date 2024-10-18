@@ -1,6 +1,6 @@
-import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { fetchData } from "../../../api";
+import styled from "styled-components";
+import { fetchData } from "../../services/api";
 
 export function ProgressBar({
   programStartDate,
@@ -9,34 +9,24 @@ export function ProgressBar({
 }) {
   const [data, setData] = useState([]);
   const [weeklyReachedDistances, setWeeklyReachedDistances] = useState([]);
+  const goalWeeklyDistances = weeklyDistances[selectedWeek - 1];
 
-  // Function only called when data or programStartDate changes, and when selectedWeek changes
-  useEffect(() => {
-    if (data.length > 0) {
-      calculateWeeklyDistances(data, programStartDate, selectedWeek);
-    }
-  }, [data, programStartDate, selectedWeek]);
-
-  const calculateWeeklyDistances = (data, programStartDate, selectedWeek) => {
+  function calculateWeeklyDistances(data, programStartDate, selectedWeek) {
     // Set startOfWeek to the start of the selected week
     const startOfWeek = new Date(programStartDate);
     startOfWeek.setDate(startOfWeek.getDate() + (selectedWeek - 1) * 7);
 
     // Set endOfWeek to 7 days after startOfWeek
-    const endOfWeek = new Date(startOfWeek); // Copy the adjusted startOfWeek
-    endOfWeek.setDate(endOfWeek.getDate() + 7); // Add 6 to get the end of the week
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 7);
 
-    // Filter the weekly runs
+    // Filter the weekly runs by the selected week dates
     const weeklyRuns = data.filter((activity) => {
       const activityDate = new Date(activity.start_date_local);
       return activityDate >= startOfWeek && activityDate <= endOfWeek;
     });
 
-    console.log("Weekly Runs: ", weeklyRuns);
-    console.log("Start of the week: ", startOfWeek);
-    console.log("End of the week: ", endOfWeek);
-    console.log("Number of runs for the week: ", weeklyRuns.length);
-
+    // Calculate the total reached distance for the week from Strava data
     setWeeklyReachedDistances(
       parseFloat(
         (
@@ -44,10 +34,9 @@ export function ProgressBar({
         ).toFixed(2)
       )
     );
-  };
+  }
 
-  console.log("Total Distance for the week: ", weeklyReachedDistances);
-  // Fetching the runs data from API using useEffect
+  // Fetches runs data from Strava API using useEffect
   useEffect(() => {
     fetchData()
       .then((data) => {
@@ -58,9 +47,12 @@ export function ProgressBar({
         console.error("Error: ", error);
       });
   }, []);
-  console.log("Goal Weekly Distances: ", weeklyDistances);
-  console.log("Selected Week: ", selectedWeek);
-  const goalWeeklyDistances = weeklyDistances[selectedWeek - 1];
+
+  useEffect(() => {
+    if (data.length > 0) {
+      calculateWeeklyDistances(data, programStartDate, selectedWeek);
+    }
+  }, [data, programStartDate, selectedWeek]);
 
   return (
     <>
