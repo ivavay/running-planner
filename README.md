@@ -30,7 +30,7 @@ Example Google Log-in Account
 
 
 Connect Strava 
-- Currently, the app is still under review at Strava so therefore it is only limited to one user 
-- If you want to try out the website with real Strava user data, feel free to let me know and I can provide you with test log-in info. 
+- Currently, the app is still under review at Strava so therefore it is only limited to one user. Therefore, it is not ready for public use. 
+- If you want to try out the website with real Strava user data (which is my running data), try this log-in info: ichen9@ucsc.edu, Maple2024!
 
 
