@@ -226,10 +226,12 @@ export default function Home() {
         />
       )}
       <Footer>
-        <FooterNote>
-          Note: If not connected Strava, cannot utilize the full features of the
-          app.
-        </FooterNote>
+        {!user && (
+          <FooterNote>
+            Test Account - maple1015chen@gmail.com: Test12345!!! · Test Strava
+            Account - ichen9@ucsc.edu: Maple2024!
+          </FooterNote>
+        )}
         <FooterLogo src={StravaLogo} alt="Strava Logo" />
       </Footer>
     </>
