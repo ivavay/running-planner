@@ -24,13 +24,10 @@ My motivation for wanting to work on this idea was because I wanted to build a t
 
 ## Try it!
 
-Example Google Log-in Account
-- Email: maple1015chen@gmail.com
-- Password: Test12345!!!
-
+Use the guest login or your own Gmail account to log in.
 
 Connect Strava 
-- Currently, the app is still under review at Strava so therefore it is only limited to one user. Therefore, it is not ready for public use. 
-- If you want to try out the website with real Strava user data (which is my running data), try this log-in info: ichen9@ucsc.edu, Maple2024!
+- You can connect your own Strava account and see your own data.  
+- If you want to try out the website with test Strava user data (which is my running data), try this log-in info: ichen9@ucsc.edu, Maple2024!
 
 
