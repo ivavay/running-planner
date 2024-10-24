@@ -9,6 +9,7 @@ import {
   fireAuth,
   fireDb,
   GoogleAuthProvider,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
 } from "../../services/firebase";
@@ -29,6 +30,22 @@ export default function Header() {
 
     return () => unsubscribe();
   }, []);
+
+  const guestSignIn = () => {
+    // Use your test email and password
+    const email = "test@example.com";
+    const password = "Test12345!!";
+
+    signInWithEmailAndPassword(fireAuth, email, password)
+      .then((userCredential) => {
+        // User is logged in
+        const user = userCredential.user;
+        console.log("Guest logged in as:", user.email);
+      })
+      .catch((error) => {
+        console.error("Login failed:", error.message);
+      });
+  };
 
   async function handleSignIn() {
     const provider = new GoogleAuthProvider();
@@ -100,7 +117,10 @@ export default function Header() {
             </NavItem>
           </>
         ) : (
-          <NavItem onClick={handleSignIn}>Log in</NavItem>
+          <>
+            <NavItem onClick={guestSignIn}>Guest Login</NavItem>
+            <NavItem onClick={handleSignIn}>Log in</NavItem>
+          </>
         )}
       </Navlinks>
 
@@ -128,7 +148,8 @@ export default function Header() {
             ) : (
               <>
                 <ExitIcon onClick={toggleHamburgerMenu} src={exitIcon} />
-                <NavItem onClick={handleSignIn}>Log in</NavItem>
+                <NavItem onClick={guestSignIn}>Guest Login</NavItem>
+                <NavItem onClick={handleSignIn}>Login</NavItem>
               </>
             )}
           </>
