@@ -228,8 +228,8 @@ export default function Home() {
       <Footer>
         {!user && (
           <FooterNote>
-            Test Account - maple1015chen@gmail.com: Test12345!!! · Test Strava
-            Account - ichen9@ucsc.edu: Maple2024!
+            You need to connect to Strava to get the full experience of the app
+            · Test Strava Account - ichen9@ucsc.edu: Maple2024!
           </FooterNote>
         )}
         <FooterLogo src={StravaLogo} alt="Strava Logo" />
