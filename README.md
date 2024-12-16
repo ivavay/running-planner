@@ -28,6 +28,5 @@ Use the guest login or your own Gmail account to log in.
 
 Connect Strava 
 - You can connect your own Strava account and see your own data.  
-- If you want to try out the website with test Strava user data (which is my running data), try this log-in info: ichen9@ucsc.edu, Maple2024!
 
 
